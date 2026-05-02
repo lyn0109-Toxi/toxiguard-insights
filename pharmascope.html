@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaScope - Real-Time Stock Search & CAPM Analysis</title>
+    <meta name="description" content="Search and compare global stocks in real-time with CAPM-based fair value analysis.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root {
+    /* Color Palette */
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-primary: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-glow: rgba(59, 130, 246, 0.5);
+    --success: #10b981;
+    --danger: #ef4444;
+    
+    /* Glassmorphism */
+    --glass-bg: rgba(30, 41, 59, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    
+    /* Animation */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1), transparent 25%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+.glass-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+    margin: 0 -20px;
+    padding: 15px 20px;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+.logo i {
+    color: var(--accent-primary);
+    filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
+nav {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-btn.active {
+    color: var(--accent-primary);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.badge {
+    background: var(--accent-primary);
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+/* Sections */
+.section {
+    display: none;
+    padding: 40px 0 80px;
+}
+
+.section.active {
+    display: block;
+}
+
+.fade-in {
+    animation: fadeIn var(--transition-normal);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero */
+.hero {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.hero h1 span {
+    background: linear-gradient(135deg, #3b82f6, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+/* Search */
+.search-bar-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+#search-input {
+    width: 100%;
+    padding: 18px 20px 18px 50px;
+    font-size: 1.1rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    color: var(--text-primary);
+    outline: none;
+    transition: var(--transition-normal);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#search-input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+    background: rgba(30, 41, 59, 0.9);
+}
+
+/* Filter Container */
+.filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.filter-btn.active {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.filter-btn.undervalued.active { background: var(--success); border-color: var(--success); }
+.filter-btn.fair.active { background: var(--warning); border-color: var(--warning); color: #000; }
+.filter-btn.overvalued.active { background: var(--danger); border-color: var(--danger); }
+
+/* Grid */
+.stock-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+/* Stock Card */
+.stock-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+.valuation-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    z-index: 10;
+}
+
+.badge-undervalued { background-color: var(--success); }
+.badge-fair { background-color: var(--warning); color: #000; }
+.badge-overvalued { background-color: var(--danger); }
+
+.stock-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, transparent);
+    transition: var(--transition-normal);
+}
+
+.stock-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--glass-shadow);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.stock-card:hover::before {
+    background: linear-gradient(90deg, var(--accent-primary), var(--success));
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.stock-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.stock-id {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.stock-type {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: var(--text-secondary);
+}
+
+.card-price {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.card-change {
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 20px;
+}
+
+.positive { color: var(--success); }
+.negative { color: var(--danger); }
+
+.card-stats {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 15px;
+    margin-bottom: 20px;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.compare-btn {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--accent-primary);
+    background: transparent;
+    color: var(--accent-primary);
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.compare-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.compare-btn.selected {
+    background: var(--accent-primary);
+    color: white;
+}
+
+/* Compare Section */
+.compare-container {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state i {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.primary-btn {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.primary-btn:hover {
+    background: var(--accent-hover);
+}
+
+.compare-table-wrapper {
+    overflow-x: auto;
+}
+
+.compare-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.compare-table th, .compare-table td {
+    padding: 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.compare-table th {
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.compare-table th:first-child, .compare-table td:first-child {
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: rgba(0,0,0,0.2);
+    border-right: 1px solid var(--glass-border);
+    width: 150px;
+}
+
+.compare-table td {
+    font-size: 1.1rem;
+}
+
+.compare-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+}
+
+.compare-table td.remove-cell {
+    text-align: center;
+    padding: 10px;
+}
+
+.remove-btn {
+    background: transparent;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: var(--transition-fast);
+}
+
+.remove-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* CAPM Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: var(--transition-normal);
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: var(--glass-shadow);
+    transform: scale(1);
+    transition: var(--transition-normal);
+    overflow: hidden;
+}
+
+.modal-overlay.hidden .modal-content {
+    transform: scale(0.95);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.icon-btn:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.capm-info-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.capm-formula {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.capm-result {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.capm-result-item h3 {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.capm-result-item .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+.gauge-container {
+    margin-top: 30px;
+}
+
+.gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.gauge-bar-bg {
+    width: 100%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.gauge-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gauge-marker {
+    position: absolute;
+    top: -4px;
+    width: 4px;
+    height: 20px;
+    background: white;
+    border-radius: 2px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+.gauge-marker::after {
+    content: 'Current';
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: white;
+    white-space: nowrap;
+}
+
+.fair-value-text {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.overvalued { color: var(--danger); }
+.undervalued { color: var(--success); }
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.analyze-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.analyze-btn:hover {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2rem; }
+    .stock-grid { grid-template-columns: 1fr; }
+    .compare-container { padding: 15px; }
+    .compare-table th, .compare-table td { padding: 15px 10px; font-size: 1rem; }
+}
+
+/* Real-time Pricing Flash Animations */
+@keyframes flashGreen {
+    0% { background-color: rgba(16, 185, 129, 0.4); color: white; border-color: var(--success); }
+    100% { background-color: transparent; border-color: transparent; }
+}
+
+@keyframes flashRed {
+    0% { background-color: rgba(239, 68, 68, 0.4); color: white; border-color: var(--danger); }
+    100% { background-color: transparent; border-color: transparent; }
+}
+
+.flash-up {
+    animation: flashGreen 1s ease-out;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.flash-down {
+    animation: flashRed 1s ease-out;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+</style>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="glass-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i data-lucide="activity"></i>
+                    <span>PharmaScope</span>
+                </div>
+                <nav>
+                    <button class="nav-btn active" id="nav-search">Search</button>
+                    <button class="nav-btn" id="nav-compare">Compare <span id="compare-badge" class="badge">0</span></button>
+                    <button class="nav-btn" id="nav-settings" title="API Settings"><i data-lucide="settings" width="18" height="18"></i></button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content: Search Section -->
+        <main id="section-search" class="section active fade-in">
+            <div class="hero">
+                <h1>A <span>New Standard</span> for Stock Analysis</h1>
+                <p>Intuitive stock exploration with real-time data and CAPM valuation</p>
+                
+                <div class="search-bar-container">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search any stock by ticker or name (e.g. AAPL, TSLA, PFE)">
+                </div>
+
+                <div class="filter-container" id="valuation-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn undervalued" data-filter="undervalued">🟢 Undervalued</button>
+                    <button class="filter-btn fair" data-filter="fair">🟡 Fair Value</button>
+                    <button class="filter-btn overvalued" data-filter="overvalued">🔴 Overvalued</button>
+                </div>
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="loading-indicator" class="hidden" style="text-align: center; padding: 20px;">
+                <i data-lucide="loader" class="spin" style="animation: spin 1s linear infinite;"></i> Loading data...
+            </div>
+
+            <div class="stock-grid" id="stock-grid">
+                <!-- Stock cards will be rendered here dynamically -->
+            </div>
+        </main>
+
+        <!-- Main Content: Compare Section -->
+        <main id="section-compare" class="section hidden">
+            <div class="hero">
+                <h1>Side-by-Side Comparison</h1>
+                <p>Compare key metrics of selected stocks at a glance</p>
+            </div>
+
+            <div id="compare-container" class="compare-container">
+                <div class="empty-state" id="empty-compare">
+                    <i data-lucide="bar-chart-2"></i>
+                    <p>Select stocks to compare from the Search tab. (Max 3)</p>
+                    <p style="font-size: 0.85rem; margin-top: 10px; opacity: 0.7;">
+                        *Analysis data is sourced from S&P Capital IQ standards and real-time financial APIs.
+                    </p>
+                    <button class="primary-btn" id="go-to-search-btn">Go to Search</button>
+                </div>
+                <div class="compare-table-wrapper hidden" id="compare-table-wrapper">
+                    <table class="compare-table">
+                        <thead>
+                            <tr id="compare-header">
+                                <th>Metric</th>
+                                <!-- Dynamic headers -->
+                            </tr>
+                        </thead>
+                        <tbody id="compare-body">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CAPM Analysis Modal -->
+    <div id="capm-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2>CAPM Fair Value Analysis</h2>
+                <button id="close-modal" class="icon-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" id="capm-modal-body">
+                <!-- Content injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- API Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2>Real-Time Financial API Settings</h2>
+                <button id="close-settings" class="icon-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem; line-height: 1.5;">
+                    To search and track real-time stock data globally, you need a <strong>Finnhub API Key</strong>. 
+                    <a href="https://finnhub.io/register" target="_blank" style="color: var(--accent-primary);">Get one for free here</a>.
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="api-key-input" placeholder="Enter your Finnhub API Key..." style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                    <button id="save-api-key" class="primary-btn" style="margin-top: 0;">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+class App {
+    constructor() {
+        this.apiKey = localStorage.getItem('finnhub_api_key') || '';
+        this.stocks = []; // Array of stock objects
+        this.selectedStocks = new Set();
+        this.currentFilter = 'all';
+        this.ws = null;
+        
+        // DOM Elements
+        this.stockGrid = document.getElementById('stock-grid');
+        this.searchInput = document.getElementById('search-input');
+        this.loadingIndicator = document.getElementById('loading-indicator');
+        this.filterBtns = document.querySelectorAll('.filter-btn');
+        
+        // Navigation & Modals
+        this.navSearch = document.getElementById('nav-search');
+        this.navCompare = document.getElementById('nav-compare');
+        this.navSettings = document.getElementById('nav-settings');
+        this.sectionSearch = document.getElementById('section-search');
+        this.sectionCompare = document.getElementById('section-compare');
+        this.compareBadge = document.getElementById('compare-badge');
+        this.goToSearchBtn = document.getElementById('go-to-search-btn');
+        
+        // Settings Modal
+        this.settingsModal = document.getElementById('settings-modal');
+        this.closeSettingsBtn = document.getElementById('close-settings');
+        this.apiKeyInput = document.getElementById('api-key-input');
+        this.saveApiKeyBtn = document.getElementById('save-api-key');
+
+        // Compare Elements
+        this.emptyCompare = document.getElementById('empty-compare');
+        this.compareTableWrapper = document.getElementById('compare-table-wrapper');
+        this.compareHeader = document.getElementById('compare-header');
+        this.compareBody = document.getElementById('compare-body');
+
+        // CAPM Modal Elements
+        this.capmModal = document.getElementById('capm-modal');
+        this.closeModalBtn = document.getElementById('close-modal');
+        this.capmModalBody = document.getElementById('capm-modal-body');
+
+        this.init();
+    }
+
+    async init() {
+        this.bindEvents();
+        if (this.apiKey) {
+            this.apiKeyInput.value = this.apiKey;
+            await this.loadDefaultStocks();
+            this.setupWebSocket();
+        } else {
+            this.stockGrid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1">
+                    <p>A Finnhub API Key is required. Click the Settings (⚙️) icon above to enter your key.</p>
+                </div>
+            `;
+        }
+    }
+
+    bindEvents() {
+        // Navigation
+        this.navSearch.addEventListener('click', () => this.switchTab('search'));
+        this.navCompare.addEventListener('click', () => this.switchTab('compare'));
+        this.goToSearchBtn.addEventListener('click', () => this.switchTab('search'));
+        this.navSettings.addEventListener('click', () => this.settingsModal.classList.remove('hidden'));
+
+        // Settings Modal
+        this.closeSettingsBtn.addEventListener('click', () => this.settingsModal.classList.add('hidden'));
+        this.saveApiKeyBtn.addEventListener('click', () => {
+            const val = this.apiKeyInput.value.trim();
+            if (val) {
+                localStorage.setItem('finnhub_api_key', val);
+                this.apiKey = val;
+                this.settingsModal.classList.add('hidden');
+                this.init(); // Reload
+            }
+        });
+
+        // CAPM Modal
+        this.closeModalBtn.addEventListener('click', () => this.capmModal.classList.add('hidden'));
+        this.capmModal.addEventListener('click', (e) => {
+            if (e.target === this.capmModal) this.capmModal.classList.add('hidden');
+        });
+
+        // Live Search via Finnhub
+        let searchTimeout;
+        this.searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value.toUpperCase().trim();
+                if (query) {
+                    this.fetchStockData(query);
+                }
+            }
+        });
+
+        // Filter events
+        if (this.filterBtns) {
+            this.filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    this.filterBtns.forEach(b => b.classList.remove('active'));
+                    const target = e.currentTarget;
+                    target.classList.add('active');
+                    this.currentFilter = target.dataset.filter;
+                    this.renderStocks();
+                });
+            });
+        }
+    }
+
+    async loadDefaultStocks() {
+        this.loadingIndicator.classList.remove('hidden');
+        this.stockGrid.innerHTML = '';
+        const defaultTickers = ['AAPL', 'TSLA', 'PFE'];
+        
+        let hasError = false;
+        for (const ticker of defaultTickers) {
+            const success = await this.fetchStockData(ticker, false, true); // isDefault = true
+            if (!success) hasError = true;
+        }
+        this.loadingIndicator.classList.add('hidden');
+        
+        if (hasError && this.stocks.length === 0) {
+            this.stockGrid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1">
+                    <p>Failed to load default stock data. Please check if your API key is valid.</p>
+                </div>
+            `;
+        } else {
+            this.renderStocks();
+        }
+    }
+
+    async resolveTicker(query) {
+        try {
+            const res = await fetch(`https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=${this.apiKey}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.result && data.result.length > 0) {
+                    const exactMatch = data.result.find(r => r.symbol === query.toUpperCase());
+                    if (exactMatch) return exactMatch.symbol;
+                    const commonStock = data.result.find(r => r.type === 'Common Stock');
+                    if (commonStock) return commonStock.symbol;
+                    return data.result[0].symbol;
+                }
+            }
+        } catch (e) { console.error("Search API error", e); }
+        return query.toUpperCase();
+    }
+
+    async fetchStockData(query, renderImmediate = true, isDefault = false) {
+        if (!this.apiKey) return false;
+
+        if (renderImmediate) {
+            this.loadingIndicator.classList.remove('hidden');
+        }
+
+        // Auto-resolve ticker if it's a company name
+        let ticker = query.toUpperCase();
+        if (!isDefault) {
+            ticker = await this.resolveTicker(query);
+        }
+        
+        // Prevent duplicate fetching if already exists
+        if (this.stocks.find(s => s.id === ticker)) {
+            if (renderImmediate) {
+                this.loadingIndicator.classList.add('hidden');
+                this.renderStocks();
+            }
+            return true;
+        }
+
+        try {
+            // Fetch Profile, Quote, and Metric in parallel
+            const [profileRes, quoteRes, metricRes] = await Promise.all([
+                fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${ticker}&token=${this.apiKey}`),
+                fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${this.apiKey}`),
+                fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${ticker}&metric=all&token=${this.apiKey}`)
+            ]);
+
+            if (!profileRes.ok || !quoteRes.ok) {
+                throw new Error("API request failed: Please check your API key or network.");
+            }
+
+            const profile = await profileRes.json();
+            const quote = await quoteRes.json();
+            
+            // Handle cases where response might be text or empty for metrics
+            let metricData = {};
+            try { metricData = await metricRes.json(); } catch(e) {}
+            
+            const metric = metricData.metric || {};
+
+            const currentPrice = quote.c || 0;
+            // Fallback: If no current price, data is completely invalid
+            if (currentPrice === 0) {
+                if (!isDefault) alert(`No stock data found for '${query}'. Please enter a valid name or ticker.`);
+                if (renderImmediate) this.loadingIndicator.classList.add('hidden');
+                return false;
+            }
+
+            const priceChangePct = quote.dp || 0;
+            const isPositive = priceChangePct > 0;
+            
+            const newStock = {
+                id: ticker,
+                name: profile.name || query.toUpperCase(),
+                type: profile.finnhubIndustry || "ETF / Other",
+                price: currentPrice,
+                previousPrice: currentPrice, // To track real-time changes
+                change: (isPositive ? '+' : '') + priceChangePct.toFixed(2) + '%',
+                marketCap: profile.marketCapitalization ? (profile.marketCapitalization / 1000).toFixed(2) + 'B' : 'N/A',
+                per: metric.peExclExtraTTM ? metric.peExclExtraTTM.toFixed(2) : (metric.peBasicExclExtraTTM ? metric.peBasicExclExtraTTM.toFixed(2) : 'N/A'),
+                dividendYield: metric.dividendYieldIndicatedAnnual ? metric.dividendYieldIndicatedAnnual.toFixed(2) + '%' : '0%',
+                pipelineCount: "N/A", 
+                description: profile.name ? `${profile.name} (${profile.ticker}) belongs to the ${profile.finnhubIndustry || 'General'} sector.` : `${ticker} — Limited financial data available (Free API restriction).`,
+                beta: metric.beta || 1.0, // Fallback
+                eps: metric.epsExclExtraItemsTTM || metric.epsBasicExclExtraItemsTTM || 0, // Fallback
+                dividend: metric.dividendPerShareAnnual || 0, // Fallback
+                growthRate: (metric.epsGrowth3Y || 5) / 100 // Convert to decimal
+            };
+
+            this.calculateValuation(newStock);
+            this.stocks.unshift(newStock); // Add to top
+            
+            // Subscribe to real-time updates for new ticker
+            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                this.ws.send(JSON.stringify({'type': 'subscribe', 'symbol': ticker}));
+            }
+
+            if (renderImmediate) {
+                this.loadingIndicator.classList.add('hidden');
+                this.renderStocks();
+            }
+            return true;
+
+        } catch (error) {
+            console.error("Error fetching stock:", error);
+            if (!isDefault) alert("An error occurred while fetching data. Please check if your API key is valid.");
+            if (renderImmediate) this.loadingIndicator.classList.add('hidden');
+            return false;
+        }
+    }
+
+    setupWebSocket() {
+        if (!this.apiKey) return;
+        
+        if (this.ws) {
+            this.ws.close();
+        }
+
+        this.ws = new WebSocket(`wss://ws.finnhub.io?token=${this.apiKey}`);
+
+        this.ws.onopen = () => {
+            // Subscribe to currently loaded stocks
+            this.stocks.forEach(stock => {
+                this.ws.send(JSON.stringify({'type': 'subscribe', 'symbol': stock.id}));
+            });
+        };
+
+        this.ws.onmessage = (event) => {
+            const response = JSON.parse(event.data);
+            if (response.type === 'trade' && response.data) {
+                // Process only the latest trade for each symbol
+                const latestTrades = {};
+                response.data.forEach(trade => {
+                    latestTrades[trade.s] = trade.p;
+                });
+
+                let needsRender = false;
+                Object.keys(latestTrades).forEach(symbol => {
+                    const stock = this.stocks.find(s => s.id === symbol);
+                    if (stock && stock.price !== latestTrades[symbol]) {
+                        stock.previousPrice = stock.price;
+                        stock.price = latestTrades[symbol];
+                        this.calculateValuation(stock);
+                        needsRender = true;
+                    }
+                });
+
+                if (needsRender) {
+                    this.updatePricesInDOM();
+                }
+            }
+        };
+    }
+
+    switchTab(tab) {
+        if (tab === 'search') {
+            this.navSearch.classList.add('active');
+            this.navCompare.classList.remove('active');
+            this.sectionSearch.classList.add('active', 'fade-in');
+            this.sectionSearch.classList.remove('hidden');
+            this.sectionCompare.classList.add('hidden');
+            this.sectionCompare.classList.remove('active', 'fade-in');
+        } else {
+            this.navCompare.classList.add('active');
+            this.navSearch.classList.remove('active');
+            this.sectionCompare.classList.add('active', 'fade-in');
+            this.sectionCompare.classList.remove('hidden');
+            this.sectionSearch.classList.add('hidden');
+            this.sectionSearch.classList.remove('active', 'fade-in');
+            
+            this.renderCompare();
+        }
+    }
+
+    toggleCompare(stockId) {
+        if (this.selectedStocks.has(stockId)) {
+            this.selectedStocks.delete(stockId);
+        } else {
+            if (this.selectedStocks.size >= 3) {
+                alert('You can compare up to 3 stocks at a time.');
+                return;
+            }
+            this.selectedStocks.add(stockId);
+        }
+        
+        this.compareBadge.textContent = this.selectedStocks.size;
+        this.renderStocks(); 
+        
+        if (this.sectionCompare.classList.contains('active')) {
+            this.renderCompare();
+        }
+    }
+
+    formatPrice(price, symbol = '$') {
+        if (!price && price !== 0) return 'N/A';
+        return `${symbol}${price.toFixed(2)}`;
+    }
+
+    calculateValuation(stock) {
+        const riskFreeRate = 0.045; // 미국 10년 국채 수익률 기준 (2024~2026 평균)
+        const marketReturn = 0.10;  // S&P 500 장기 평균 수익률 (1928~현재)
+        const riskPremium = marketReturn - riskFreeRate; // 시장위험프리미엄 5.5%
+        const expectedReturn = riskFreeRate + stock.beta * riskPremium;
+        const MAX_IMPLIED_PE = 50; // 암묵 P/E 상한선 (비현실적 적정가 방지)
+        
+        let fairPrice = 0;
+        let valuationModel = '';
+
+        if (stock.dividend > 0 && expectedReturn > stock.growthRate) {
+            // ===== 모델 1: Gordon Growth Model (배당할인모형) =====
+            // 학술 근거: P₀ = D₁ / (r - g) = D₀×(1+g) / (r - g)
+            // 조건: 배당 지급 기업, 요구수익률 > 성장률
+            // 참고: g는 EPS 성장률을 배당 성장률의 프록시로 사용 (배당성향 안정 가정)
+            fairPrice = (stock.dividend * (1 + stock.growthRate)) / (expectedReturn - stock.growthRate);
+            valuationModel = 'GGM';
+        } else if (stock.eps > 0) {
+            // ===== 모델 2: Earnings Capitalization (이익자본화 모형) =====
+            // 학술 근거: V = E / K (기본), V = E₁ / (r - g) (성장 반영)
+            // ⚠️ 이 모형은 이익 전액 환원(Payout=100%)을 가정합니다.
+            //    실제 기업은 이익 일부를 재투자하므로, 산출 적정가는 상한 추정치입니다.
+            // 암묵 P/E 상한 적용: (1+g)/(r-g) 가 MAX_IMPLIED_PE를 초과하지 않도록 제한
+            const adjustedGrowth = Math.min(stock.growthRate, expectedReturn - 0.02);
+            let impliedPE;
+            if (adjustedGrowth > 0 && expectedReturn > adjustedGrowth) {
+                impliedPE = (1 + adjustedGrowth) / (expectedReturn - adjustedGrowth);
+            } else {
+                impliedPE = 1 / expectedReturn; // 성장률 0 가정: 단순 자본화
+            }
+            impliedPE = Math.min(impliedPE, MAX_IMPLIED_PE); // 상한 캡 적용
+            fairPrice = stock.eps * impliedPE;
+            valuationModel = 'ECM';
+        } else {
+            // ===== 모델 3: 적자 기업 (EPS ≤ 0) =====
+            // EPS가 음수이거나 0인 기업은 DCF/FCFE 없이는 내재가치 산출이 불가합니다.
+            // CAPM 기반 분석 불가로 정직하게 표시합니다.
+            fairPrice = 0;
+            valuationModel = 'N/A';
+        }
+
+        stock.fairPrice = fairPrice;
+        stock.expectedReturn = expectedReturn;
+        stock.valuationModel = valuationModel;
+
+        // 적정가가 0이면 분석 불가 → 'fair'로 분류 (판단 유보)
+        if (fairPrice <= 0) {
+            stock.valuationStatus = 'fair';
+            return;
+        }
+
+        const diffRatio = (stock.price - fairPrice) / fairPrice;
+        
+        if (diffRatio > 0.05) {
+            stock.valuationStatus = 'overvalued';
+        } else if (diffRatio < -0.05) {
+            stock.valuationStatus = 'undervalued';
+        } else {
+            stock.valuationStatus = 'fair';
+        }
+    }
+
+    renderStocks() {
+        this.stockGrid.innerHTML = '';
+        
+        let displayStocks = this.stocks;
+        if (this.currentFilter !== 'all') {
+            displayStocks = this.stocks.filter(s => s.valuationStatus === this.currentFilter);
+        }
+
+        if (this.stocks.length === 0) {
+            this.stockGrid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1">
+                <p>Enter a stock ticker (e.g. TSLA, MSFT) in the search bar and press Enter.</p>
+            </div>`;
+            return;
+        }
+
+        if (displayStocks.length === 0) {
+            this.stockGrid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1">
+                <p>No stocks match the selected filter.</p>
+            </div>`;
+            return;
+        }
+
+        displayStocks.forEach(stock => {
+            const isSelected = this.selectedStocks.has(stock.id);
+            const isPositive = stock.change.startsWith('+');
+            const changeClass = isPositive ? 'positive' : 'negative';
+            const changeIcon = isPositive ? 'trending-up' : 'trending-down';
+            
+            const badgeLabel = stock.valuationStatus === 'undervalued' ? 'Undervalued' : 
+                              (stock.valuationStatus === 'overvalued' ? 'Overvalued' : 'Fair Value');
+
+            const card = document.createElement('div');
+            card.className = 'stock-card';
+            card.id = `card-${stock.id}`;
+            card.innerHTML = `
+                <div class="valuation-badge badge-${stock.valuationStatus}">${badgeLabel}</div>
+                <div class="card-header">
+                    <div>
+                        <div class="stock-name">${stock.name}</div>
+                        <div class="stock-id">${stock.id}</div>
+                    </div>
+                    <div class="stock-type">${stock.type}</div>
+                </div>
+                
+                <div class="card-price" id="price-${stock.id}">${this.formatPrice(stock.price)}</div>
+                <div class="card-change ${changeClass}">
+                    <i data-lucide="${changeIcon}" width="16" height="16"></i>
+                    ${stock.change}
+                </div>
+                
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-label">Market Cap</div>
+                        <div class="stat-value">${stock.marketCap}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">PER</div>
+                        <div class="stat-value">${stock.per}</div>
+                    </div>
+                </div>
+                
+                <div class="card-actions">
+                    <button class="compare-btn ${isSelected ? 'selected' : ''}" data-id="${stock.id}">
+                        ${isSelected ? 'Remove' : 'Compare'}
+                    </button>
+                    <button class="analyze-btn" data-analyze-id="${stock.id}">
+                        Fair Value
+                    </button>
+                </div>
+            `;
+            
+            const btn = card.querySelector('.compare-btn');
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleCompare(stock.id);
+            });
+
+            const analyzeBtn = card.querySelector('.analyze-btn');
+            analyzeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.openCAPMModal(stock.id);
+            });
+            
+            this.stockGrid.appendChild(card);
+        });
+        
+        lucide.createIcons();
+    }
+
+    // Smart update to avoid full re-render on WebSocket tick
+    updatePricesInDOM() {
+        this.stocks.forEach(stock => {
+            const priceEl = document.getElementById(`price-${stock.id}`);
+            if (priceEl && stock.price !== stock.previousPrice) {
+                priceEl.textContent = this.formatPrice(stock.price);
+                
+                // Add flash animation
+                priceEl.classList.remove('flash-up', 'flash-down');
+                // trigger reflow
+                void priceEl.offsetWidth;
+                
+                if (stock.price > stock.previousPrice) {
+                    priceEl.classList.add('flash-up');
+                } else if (stock.price < stock.previousPrice) {
+                    priceEl.classList.add('flash-down');
+                }
+            }
+        });
+
+        // Also update compare table if active
+        if (this.sectionCompare.classList.contains('active')) {
+            this.renderCompare();
+        }
+    }
+
+    renderCompare() {
+        if (this.selectedStocks.size === 0) {
+            this.emptyCompare.classList.remove('hidden');
+            this.compareTableWrapper.classList.add('hidden');
+            return;
+        }
+
+        this.emptyCompare.classList.add('hidden');
+        this.compareTableWrapper.classList.remove('hidden');
+
+        const selectedStocksData = Array.from(this.selectedStocks).map(id => 
+            this.stocks.find(s => s.id === id)
+        );
+
+        this.compareHeader.innerHTML = '<th>Metric</th>';
+        selectedStocksData.forEach(stock => {
+            this.compareHeader.innerHTML += `
+                <th>
+                    <div style="font-size:1.2rem; margin-bottom:5px;">${stock.name}</div>
+                    <div style="font-size:0.8rem; color:var(--text-secondary); font-weight:normal;">${stock.id}</div>
+                </th>
+            `;
+        });
+        
+        const rows = [
+            { key: 'price', label: 'Current Price', format: (val) => this.formatPrice(val) },
+            { key: 'change', label: 'Change', format: (val) => `<span class="${val.startsWith('+') ? 'positive' : 'negative'}">${val}</span>` },
+            { key: 'marketCap', label: 'Market Cap' },
+            { key: 'per', label: 'PER' },
+            { key: 'dividendYield', label: 'Dividend Yield' },
+            { key: 'beta', label: 'Beta (Market Sensitivity)', format: (val) => val.toFixed(2) },
+            { key: 'eps', label: 'EPS (Earnings Per Share)', format: (val) => this.formatPrice(val) },
+            { key: 'description', label: 'Description', format: (val) => `<div style="font-size:0.9rem; line-height:1.4">${val}</div>` }
+        ];
+
+        this.compareBody.innerHTML = '';
+        
+        rows.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${row.label}</td>`;
+            
+            selectedStocksData.forEach(stock => {
+                let val = stock[row.key];
+                if (row.format && val !== 'N/A') val = row.format(val, stock);
+                tr.innerHTML += `<td class="${row.key === 'price' ? 'live-price-cell' : ''}">${val}</td>`;
+            });
+            this.compareBody.appendChild(tr);
+        });
+        
+        const removeTr = document.createElement('tr');
+        removeTr.innerHTML = `<td></td>`;
+        selectedStocksData.forEach(stock => {
+            const td = document.createElement('td');
+            td.className = 'remove-cell';
+            const btn = document.createElement('button');
+            btn.className = 'remove-btn';
+            btn.innerHTML = '<i data-lucide="x" width="20" height="20"></i>';
+            btn.addEventListener('click', () => this.toggleCompare(stock.id));
+            td.appendChild(btn);
+            removeTr.appendChild(td);
+        });
+        this.compareBody.appendChild(removeTr);
+        
+        lucide.createIcons();
+    }
+
+    openCAPMModal(stockId) {
+        const stock = this.stocks.find(s => s.id === stockId);
+        if (!stock) return;
+
+        const riskFreeRate = 0.045;
+        const marketReturn = 0.10;
+        const riskPremium = marketReturn - riskFreeRate;
+        const expectedReturn = stock.expectedReturn;
+        const fairPrice = stock.fairPrice;
+
+        const isUnderValued = stock.valuationStatus === 'undervalued';
+        const diffRatio = stock.price > 0 && fairPrice > 0 ? ((fairPrice - stock.price) / stock.price) * 100 : 0;
+        
+        let statusText = 'Fair Value';
+        if (stock.valuationStatus === 'undervalued') statusText = 'Undervalued';
+        if (stock.valuationStatus === 'overvalued') statusText = 'Overvalued';
+        const statusClass = stock.valuationStatus;
+
+        // 사용된 밸류에이션 모델 설명
+        let modelExplanation = '';
+        if (stock.valuationModel === 'GGM') {
+            modelExplanation = `
+                <div style="margin-top:15px; padding:12px; background:rgba(16,185,129,0.1); border-radius:8px; font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">
+                    📐 <strong>Model: Gordon Growth Model (GGM)</strong><br>
+                    This company pays dividends, so GGM reflecting future dividend growth was applied.<br>
+                    <code style="color:var(--accent-primary);">Fair Price = D₀×(1+g) / (r - g) = $${stock.dividend.toFixed(2)}×(1+${(stock.growthRate*100).toFixed(1)}%) / (${(expectedReturn*100).toFixed(2)}% - ${(stock.growthRate*100).toFixed(1)}%)</code>
+                </div>`;
+        } else if (stock.valuationModel === 'ECM') {
+            const adjustedGrowth = Math.min(stock.growthRate, expectedReturn - 0.02);
+            let impliedPE = adjustedGrowth > 0 ? (1 + adjustedGrowth) / (expectedReturn - adjustedGrowth) : 1 / expectedReturn;
+            impliedPE = Math.min(impliedPE, 50);
+            modelExplanation = `
+                <div style="margin-top:15px; padding:12px; background:rgba(59,130,246,0.1); border-radius:8px; font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">
+                    📐 <strong>Model: Earnings Capitalization Model (ECM)</strong><br>
+                    This is a growth stock without dividends, so ECM reflecting EPS and growth rate was applied.<br>
+                    <code style="color:var(--accent-primary);">Fair Price = EPS × Justified P/E = $${stock.eps.toFixed(2)} × ${impliedPE.toFixed(1)}x</code><br>
+                    <span style="font-size:0.8rem; opacity:0.8;">⚠️ Upper-bound estimate assuming 100% payout. Implied P/E capped at 50x.</span>
+                </div>`;
+        } else {
+            modelExplanation = `
+                <div style="margin-top:15px; padding:12px; background:rgba(239,68,68,0.1); border-radius:8px; font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">
+                    ⚠️ <strong>Limited Analysis</strong><br>
+                    This stock has negative EPS or insufficient financial data for precise fair value calculation. Use for reference only.
+                </div>`;
+        }
+        
+        const maxPrice = Math.max(stock.price, fairPrice) * 1.2;
+        const currentPct = maxPrice > 0 ? (stock.price / maxPrice) * 100 : 0;
+        const fairPct = maxPrice > 0 ? (fairPrice / maxPrice) * 100 : 0;
+
+        const gaugeColor = stock.valuationStatus === 'undervalued' ? 'var(--success)' : 
+                          (stock.valuationStatus === 'overvalued' ? 'var(--danger)' : 'var(--warning)');
+
+        this.capmModalBody.innerHTML = `
+            <div style="text-align:center; margin-bottom: 20px;">
+                <h3 style="font-size: 1.5rem; color: var(--text-primary);">${stock.name} (${stock.id})</h3>
+                <p style="color: var(--text-secondary);">Current Price: <span class="${stock.price > stock.previousPrice ? 'flash-up' : (stock.price < stock.previousPrice ? 'flash-down' : '')}">${this.formatPrice(stock.price)}</span></p>
+            </div>
+            
+            <div class="capm-info-box">
+                <div class="capm-formula">
+                    <strong>Step 1: Required Return (CAPM)</strong><br>
+                    r = R<sub>f</sub> + β × (R<sub>m</sub> - R<sub>f</sub>) = ${(riskFreeRate*100).toFixed(1)}% + ${stock.beta.toFixed(2)} × ${(riskPremium*100).toFixed(1)}%
+                </div>
+                <div class="capm-result">
+                    <div class="capm-result-item">
+                        <h3>Required Return (r)</h3>
+                        <div class="value">${(expectedReturn * 100).toFixed(2)}%</div>
+                    </div>
+                    <div class="capm-result-item">
+                        <h3>Fair Value (Est.)</h3>
+                        <div class="value">${fairPrice > 0 ? this.formatPrice(fairPrice) : 'N/A'}</div>
+                    </div>
+                </div>
+                ${modelExplanation}
+            </div>
+
+            <div class="fair-value-text ${statusClass}">
+                ${fairPrice > 0 
+                    ? `This stock is currently <strong>${Math.abs(diffRatio).toFixed(1)}%</strong> ${statusText}.`
+                    : 'Insufficient financial data for accurate valuation.'}
+            </div>
+
+            ${fairPrice > 0 ? `
+            <div class="gauge-container">
+                <div class="gauge-labels">
+                    <span>${this.formatPrice(0)}</span>
+                    <span>Fair Value: ${this.formatPrice(fairPrice)}</span>
+                    <span>${this.formatPrice(maxPrice)}</span>
+                </div>
+                <div class="gauge-bar-bg">
+                    <div class="gauge-bar-fill" style="width: ${fairPct}%; background: ${gaugeColor};"></div>
+                    <div class="gauge-marker" style="left: ${currentPct}%;"></div>
+                </div>
+            </div>` : ''}
+        `;
+
+        this.capmModal.classList.remove('hidden');
+        lucide.createIcons();
+    }
+}
+
+// Initialize App
+document.addEventListener('DOMContentLoaded', () => {
+    new App();
+});
+
+lucide.createIcons();
+</script>
+</body>
+</html>
