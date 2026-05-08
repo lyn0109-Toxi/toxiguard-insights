@@ -56,6 +56,15 @@ PHARMACOPEIA_DB = {
         ],
         "monograph_ref": "USP 42; EP 9.0",
         "dmf_summary": "Managed through selective reduction stages; diastereomers controlled at <0.15%."
+    },
+    "Brivaracetam": {
+        "impurities": [
+            {"id": "Impurity 1", "name": "4-Propyl-pyrrolidin-2-one", "origin": "Synthesis", "alert": "None", "class": 5},
+            {"id": "Impurity 2", "name": "Brivaracetam Acid", "origin": "Hydrolysis", "alert": "None", "class": 5},
+            {"id": "PGI-1", "name": "2-Bromobutyryl chloride", "origin": "Process Reagent", "alert": "Alkyl Halide", "class": 3}
+        ],
+        "monograph_ref": "FDA Approval 2016; EP 10.0",
+        "dmf_summary": "Mutagenicity assessment performed for process-related intermediates. PGI-1 controlled via purge study (ICH M7 Option 4)."
     }
 }
 
