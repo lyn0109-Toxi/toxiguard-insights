@@ -4,12 +4,20 @@ import urllib.parse
 # --- ICH M7 Expert Knowledge Base (Expanded) ---
 ASHBY_ALERTS = {
     "Aromatic Amine": {
-        "smarts": "[NX3;H2,H1;!$(NC=O)]-c1ccc2ccccc2c1",
+        "smarts": "[NX3;H2,H1;!$(NC=O)]-c1ccccc1",
         "likelihood": "Certain",
-        "mechanism": "Metabolic activation (N-hydroxylation) leads to nitrenium ions, which form DNA adducts at guanine residues.",
+        "mechanism": "Metabolic activation to nitrenium ions, causing DNA adducts.",
         "reference": "ICH M7(R2); Ashby & Tennant (1991)",
         "priority": "Critical",
-        "expert_comment": "Primary aromatic amines on fused ring systems (e.g., naphthylamine) are classic DNA intercalators and covalent binders."
+        "expert_comment": "Primary aromatic amines (Anilines) are key structural alerts for mutagenicity."
+    },
+    "Fused-Ring Aromatic Amine": {
+        "smarts": "[NX3;H2,H1;!$(NC=O)]-c1ccc2ccccc2c1",
+        "likelihood": "Certain",
+        "mechanism": "Planar fused rings intercalate into DNA; amine group forms covalent bonds.",
+        "reference": "IARC Monograph Vol 77",
+        "priority": "Critical",
+        "expert_comment": "Naphthylamines and similar fused systems are potent carcinogens."
     },
     "Nitro Group": {
         "smarts": "[N+](=O)[O-]",
