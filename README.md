@@ -1,32 +1,35 @@
-# ToxiScope & PharmaScope AI Platform
+# 📈 PharmaScope™
+### Professional Pharmaceutical Stock Valuation & Financial Intelligence Platform
 
-## 📊 PharmaScope: Professional Stock Valuation
-Institutional-grade financial analysis platform with a compliance-first engine.
-- **Valuation Harness**: Real-time validation of data integrity, freshness, and model concordance.
-- **Compliance Dashboard**: Transparent trust-level labeling (Official vs Sandbox).
-- **Institutional Reporting**: Narrative generation for investment decision support.
+PharmaScope™ is an institutional-grade stock analysis engine specifically designed for the pharmaceutical and biotechnology sectors. It provides real-time valuation, financial health assessment, and intrinsic value triangulation using multiple sophisticated models.
 
-## 🔬 ToxiScope AI: Regulatory Intelligence
-Precision in silico toxicology and regulatory decision support platform.
-- **ICH M7 Alignment**: QSAR, impurity evidence, and degradation profiling.
-- **Submission Support**: Automated generation of submission-ready regulatory documents.
+---
 
-## Deployment & Run
-### Streamlit Cloud (ToxiScope)
-- Repository: `lyn0109-Toxi/pharmascope`
-- Branch: `main`
-- Main path: `streamlit_app.py`
+## 📊 Key Features
+- **Intrinsic Value Triangulation**: Combines Income Approach (ECM/GGM), Asset Approach (Graham Number), and Market Approach (Peer Proxy) to calculate a robust fair price.
+- **Real-Time Data Integration**: Powered by the Finnhub API for up-to-the-minute stock quotes and financial metrics.
+- **Valuation Harness**: An automated data integrity and compliance check system to ensure all analysis meets professional standards.
+- **Pharma-Specific Intelligence**: Focuses on metrics that matter most in the pharmaceutical industry, including R&D efficiency and growth projections.
 
-### Web Dashboard (PharmaScope)
-- Static hosting compatible (GitHub Pages, Vercel, Netlify).
-- Local run: `npm install && npm run dev`
+---
 
-## Core Modules
+## 🚀 Deployment
+- **Platform**: Streamlit Community Cloud
+- **URL**: [https://pharmascope.streamlit.app](https://pharmascope.streamlit.app)
+- **Repository**: [lyn0109-Toxi/pharmascope](https://github.com/lyn0109-Toxi/pharmascope)
 
-- `core/regulatory.py`: compatibility API for app and tests
-- `core/qsar.py`: expert and statistical structural alert logic
-- `core/evidence.py`: evidence objects and source traceability
-- `core/compendial.py`: USP/EP/DMF-style known impurity context
-- `core/degradation.py`: predicted degradation product assessment
-- `core/harness.py`: validation gates and worker-report style manifest
-- `core/reporting.py`: regulatory narrative generation
+---
+
+## 🔬 Technology Stack
+- **Frontend/Backend**: Streamlit (Python)
+- **Data Engine**: Finnhub REST API
+- **Mathematics**: NumPy & Pandas for financial modeling
+- **Design**: Premium Glassmorphism UI with custom CSS design tokens
+
+---
+
+## ⚖️ Legal & Intellectual Property
+Copyright (c) 2026 Young Lee (lyn0109-Toxi). All Rights Reserved.  
+This software and its associated UI/UX design are **PROPRIETARY**. Unauthorized copying, modification, or distribution is strictly prohibited.
+
+**Disclaimer**: This platform is for informational and educational purposes only. It does not constitute financial or investment advice.
