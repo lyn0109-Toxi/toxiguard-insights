@@ -206,13 +206,23 @@ def assess_genotoxicity(smiles, drug_substance_smiles=None, daily_dose_mg=10):
 
     can_smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
 
+    # 0. Pre-calculate TTC info
+    ttc_info = calculate_ttc_limit(daily_dose_mg)
+
     # 1. Check Known Database (Class 1 & 2)
     if can_smiles in KNOWN_MUTAGENS:
         m_info = KNOWN_MUTAGENS[can_smiles]
         return {
             "status": "alert",
             "class": f"ICH M7 Class {m_info['class']}",
-            "alerts": [{"alert": "Known Mutagen/Carcinogen", "evidence": m_info['evidence']}]
+            "alerts": [{
+                "method": "Historical Evidence",
+                "alert": "Known Mutagen/Carcinogen", 
+                "evidence": m_info['evidence'],
+                "mechanism": "Confirmed in historical toxicology studies.",
+                "reference": m_info['evidence']
+            }],
+            "ttc_info": ttc_info
         }
 
     # 2. Methodology 1: Expert Rule-based (Ashby)
@@ -262,36 +272,54 @@ def assess_genotoxicity(smiles, drug_substance_smiles=None, daily_dose_mg=10):
         "ttc_info": ttc_info
     }
 
-# --- Advanced Degradation & Stress Testing Engine ---
+# --- Professional Degradation & Forced Degradation Library (Expanded) ---
 DEGRADATION_RULES = {
-    "Acid/Base Hydrolysis (Ester)": {
+    "Acid Hydrolysis (Ester)": {
         "smarts": "[CX3:1](=[OX1:2])[OX2:3][CX4:4]>>[CX3:1](=[OX1:2])[OX2:3].[OX2][CX4:4]",
-        "condition": "pH < 2 or pH > 10, Heat",
-        "rationale": "Nucleophilic attack on the carbonyl carbon leads to ester cleavage. Common in polyester-based excipient interactions.",
-        "risk_level": "High"
+        "condition": "Acidic stress (pH < 2), Heat",
+        "rationale": "Acid-catalyzed nucleophilic substitution at the carbonyl center. High risk for prodrugs and polyesters.",
+        "reg_significance": "Commonly requires qualification if >0.15% (ICH Q3A).",
+        "risk_level": "Critical"
     },
-    "Oxidative Degradation (N-Oxide)": {
-        "smarts": "[NX3:1]([CX4:2])([CX4:3])[CX4:4]>>[NX3+:1]([CX4:2])([CX4:3])([CX4:4])[O-]",
-        "condition": "Peroxides, Light, Oxygen exposure",
-        "rationale": "Formation of N-oxides via reaction with trace peroxides in excipients (e.g., Povidone, PEG).",
+    "Base Hydrolysis (Amide)": {
+        "smarts": "[CX3:1](=[OX1:2])[NX3:3][CX4:4]>>[CX3:1](=[OX1:2])[OX2].[NX3:3][CX4:4]",
+        "condition": "Basic stress (pH > 10), Prolonged Heat",
+        "rationale": "Base-promoted hydrolysis of stable amide bonds. Often seen in penicillin/cephalosporin class drugs.",
+        "reg_significance": "Often considered a 'Process-Related Impurity' if formed during synthesis.",
         "risk_level": "Medium"
     },
-    "Hydrolytic Cleavage (Amide)": {
-        "smarts": "[CX3:1](=[OX1:2])[NX3:3][CX4:4]>>[CX3:1](=[OX1:2])[OX2].[NX3:3][CX4:4]",
-        "condition": "Extreme pH, Prolonged heat",
-        "rationale": "Amide bonds are more stable than esters but can undergo hydrolysis under forced degradation conditions.",
-        "risk_level": "Low"
+    "Oxidative N-Dealkylation": {
+        "smarts": "[NX3:1]([CX4:2])[H:3]>>[NX3:1]([H])[H].[CX4:2]=[OX1]",
+        "condition": "Peroxides, Metal ions (Fe/Cu), Air exposure",
+        "rationale": "Alpha-carbon oxidation followed by C-N bond cleavage. Common in secondary/tertiary amines.",
+        "reg_significance": "Reaction with excipient peroxides is a major stability concern for tablets.",
+        "risk_level": "High"
     },
-    "Photolytic Dealkylation": {
+    "Photolytic Ether Cleavage": {
         "smarts": "[OX2:1][CX4:2]>>[OX2:1].[CX4:2][OH]",
-        "condition": "UV Light (ICH Q1B)",
-        "rationale": "Free radical mechanism initiated by photon absorption, leading to ether bond cleavage.",
+        "condition": "UV/Visible Light (ICH Q1B)",
+        "rationale": "Photon-induced homolytic cleavage of C-O bonds. Common in methoxy/ethoxy substituted aromatics.",
+        "reg_significance": "Requires light-resistant packaging (amber vials/alu-alu blisters).",
+        "risk_level": "High"
+    },
+    "Aromatic Nitro Reduction": {
+        "smarts": "[N+:1](=[O:2])[O-:3]>>[NX3:1]([H])[H]",
+        "condition": "Reducing agents, Anaerobic conditions",
+        "rationale": "Step-wise reduction of nitro to hydroxylamine and then to amine. Intermediates are often mutagenic.",
+        "reg_significance": "Class 2/3 Alert formation potential. Critical for genotoxicity assessment.",
+        "risk_level": "Critical"
+    },
+    "Decarboxylation": {
+        "smarts": "[CX3:1](=[OX1:2])[OX2:3][H:4]>>[CX4:1].[OX1]=[CX3]=[OX1]",
+        "condition": "Thermal stress, Acid catalysis",
+        "rationale": "Loss of CO2 from carboxylic acids, especially those with alpha-electron withdrawing groups.",
+        "reg_significance": "Leads to loss of potency; often a major degradation pathway for NSAIDs.",
         "risk_level": "Medium"
     }
 }
 
 def predict_degradation_products(smiles):
-    """Predict potential impurities with detailed scientific backing"""
+    """Predict potential impurities with professional regulatory backing"""
     try:
         from rdkit import Chem
         from rdkit.Chem import AllChem
@@ -319,6 +347,7 @@ def predict_degradation_products(smiles):
                             "pathway": name,
                             "condition": data["condition"],
                             "rationale": data["rationale"],
+                            "significance": data["reg_significance"],
                             "risk": data["risk_level"],
                             "smiles": psmiles,
                             "class": toxicity["class"],
