@@ -298,7 +298,7 @@ The impurity is classified as {st.session_state.results['class']}.
 
 else:
     # Landing State: Show Hero Image
-    st.image("/Users/leeyoung-nam/.gemini/antigravity/brain/734485e6-f803-4b4f-a6e3-287f8758d2d3/toxiscope_hero_v2_1778198169278.png", use_container_width=True)
+    st.image("./hero.png", use_container_width=True)
     st.markdown("<div style='text-align: center; color: #64748b; margin-top: -2rem;'>Precision regulatory decision support for pharmaceutical impurity management.</div>", unsafe_allow_html=True)
 
 st.markdown("---")
