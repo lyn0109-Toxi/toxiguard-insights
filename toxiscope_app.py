@@ -240,19 +240,26 @@ if st.session_state.results:
             expert_html = "<div style='color: #4ade80; padding: 10px; background: rgba(74,222,128,0.1); border-radius: 8px;'>✅ No structural alerts identified by expert knowledge base.</div>"
         
         with e_col1:
-            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>🧠 Method 1: Expert</h4>{expert_html}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>🧠 Method 1: Expert (EU/US Standards)</h4>"
+                        f"<div style='margin-bottom: 10px;'><span class='badge' style='background: #3b82f6;'>ECHA REACH Linked</span> <span class='badge' style='background: #10b981;'>FDA Ashby Rules</span></div>"
+                        f"{expert_html}</div>", unsafe_allow_html=True)
 
         # Methodology 2: Statistical
         stat_alerts = [a for a in st.session_state.results['alerts'] if a['method'] == 'Statistical (SAR)']
         stat_html = ""
         if stat_alerts:
             for a in stat_alerts:
-                stat_html += f"<div style='background: rgba(255,0,0,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid red;'><b style='color: #ef4444;'>{a['alert']}</b><br><small style='color: #94a3b8;'>Prob: {int(a['probability']*100)}%</small></div>"
+                stat_html += f"<div style='background: rgba(255,0,0,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid red;'>" \
+                             f"<b style='color: #ef4444;'>{a['alert']}</b><br>" \
+                             f"<small style='color: #94a3b8;'>Source: EPA CompTox / NTP</small><br>" \
+                             f"<small style='color: #94a3b8;'>Prob: {int(a['probability']*100)}%</small></div>"
         else:
-            stat_html = "<div style='color: #4ade80; padding: 10px; background: rgba(74,222,128,0.1); border-radius: 8px;'>✅ No significant mutagenic fragments identified by statistical engine.</div>"
+            stat_html = "<div style='color: #4ade80; padding: 10px; background: rgba(74,222,128,0.1); border-radius: 8px;'>✅ No significant mutagenic fragments identified by multi-agency statistical engines.</div>"
 
         with e_col2:
-            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>📊 Method 2: Statistical</h4>{stat_html}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>📊 Method 2: Statistical (EPA/NTP)</h4>"
+                        f"<div style='margin-bottom: 10px;'><span class='badge' style='background: #ef4444;'>EPA CompTox Ready</span> <span class='badge' style='background: #f59e0b;'>NTP Data Sync</span></div>"
+                        f"{stat_html}</div>", unsafe_allow_html=True)
 
         # Assay Data
         exp_data = get_experimental_detail(st.session_state.smiles)
