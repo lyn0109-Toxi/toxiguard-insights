@@ -171,17 +171,6 @@ col1, col2 = st.columns([1.5, 1])
 with col1:
     st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
     st.markdown("### 🔍 Chemical Identification")
-    c_name, c_btn = st.columns([3, 1])
-    input_name = c_name.text_input("Compound Name", placeholder="e.g. Telmisartan, Rosuvastatin...")
-    
-    if c_btn.button("Analyze Structure"):
-        if input_name:
-            with st.spinner("Resolving across chemical engines..."):
-                res = get_smiles_from_name(input_name)
-                if res:
-                    st.session_state.smiles = res['smiles']
-                    st.session_state.identity = res
-                    # Run Assessment
                     st.session_state.results = assess_genotoxicity(res['smiles'])
                     st.session_state.degradants = predict_degradation_products(res['smiles'])
                 else:
