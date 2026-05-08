@@ -9,7 +9,19 @@ import os
 # Add the current directory to sys.path for Cloud deployments
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from core.regulatory import get_smiles_from_name, assess_genotoxicity, predict_degradation_products, get_pharmacopeia_info, get_experimental_detail
+# Debugging: List directory contents to verify file structure on Cloud
+try:
+    from core.regulatory import get_smiles_from_name, assess_genotoxicity, predict_degradation_products, get_pharmacopeia_info, get_experimental_detail
+except ModuleNotFoundError as e:
+    st.error(f"Module Import Error: {e}")
+    st.write("Current Directory Contents:")
+    st.write(os.listdir(os.path.dirname(os.path.abspath(__file__))))
+    if os.path.exists('core'):
+        st.write("'core' directory found. Contents of 'core':")
+        st.write(os.listdir('core'))
+    else:
+        st.write("'core' directory NOT FOUND in current path.")
+    raise e
 
 # Try importing RDKit
 try:
