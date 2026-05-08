@@ -14,30 +14,33 @@ import urllib.parse
 import requests
 
 # --- Robust Module Resolution ---
-import sys
-import os
-from pathlib import Path
-
+# This ensures that the 'core' directory is findable regardless of where the app is launched.
 def add_project_root():
     try:
-        # Check script directory and working directory
-        starts = [Path(__file__).resolve().parent, Path.cwd()]
-        for start in starts:
-            for parent in [start] + list(start.parents):
+        # Check script directory and current working directory
+        potential_roots = [Path(__file__).resolve().parent, Path.cwd()]
+        for start_path in potential_roots:
+            # Check the path itself and all its parents
+            for parent in [start_path] + list(start_path.parents):
                 if (parent / 'core').is_dir():
-                    path_str = str(parent)
-                    if path_str not in sys.path:
-                        sys.path.insert(0, path_str)
+                    root_dir = str(parent)
+                    if root_dir not in sys.path:
+                        sys.path.insert(0, root_dir)
                     return True
     except Exception:
         pass
     return False
 
 if not add_project_root():
-    st.error("Critical Error: 'core' module not found in any parent directories.")
-    st.info(f"Current Working Directory: {os.getcwd()}")
-    st.info(f"Script File: {__file__ if '__file__' in globals() else 'Unknown'}")
-    st.stop()
+    # If we are on Streamlit Cloud, the root is usually /mount/src/pharmascope
+    cloud_root = "/mount/src/pharmascope"
+    if os.path.exists(os.path.join(cloud_root, 'core')):
+        if cloud_root not in sys.path:
+            sys.path.insert(0, cloud_root)
+    else:
+        st.error("Critical Error: 'core' module not found.")
+        st.info(f"Searched parents of: {Path(__file__).resolve()}")
+        st.stop()
 
 try:
     from core.regulatory import (
