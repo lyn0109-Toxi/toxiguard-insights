@@ -1,28 +1,16 @@
-import streamlit as st
-import os
+"""Streamlit Cloud entry point for ToxiScope AI.
 
-st.set_page_config(
-    page_title="PharmaScope - Stock Analyzer",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+Streamlit Community Cloud executes `streamlit_app.py` by default. The actual
+application remains in `toxiscope_app.py` so local development and cloud
+deployment share the same runtime path.
+"""
 
-# Hide Streamlit default UI for cleaner look
-st.markdown("""
-<style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .stApp > header {display: none;}
-    .block-container {padding: 0; max-width: 100%;}
-    iframe {border: none;}
-</style>
-""", unsafe_allow_html=True)
+from pathlib import Path
+import sys
 
-# Load the PharmaScope HTML
-html_path = os.path.join(os.path.dirname(__file__), "pharmascope.html")
-with open(html_path, "r", encoding="utf-8") as f:
-    html_content = f.read()
 
-st.components.v1.html(html_content, height=900, scrolling=True)
+APP_ROOT = Path(__file__).resolve().parent
+if str(APP_ROOT) not in sys.path:
+    sys.path.insert(0, str(APP_ROOT))
+
+import toxiscope_app  # noqa: F401,E402

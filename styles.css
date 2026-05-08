@@ -139,62 +139,105 @@ nav {
 }
 
 /* Hero */
+/* --- Sophisticated Branding --- */
 .hero {
     text-align: center;
-    margin-bottom: 50px;
+    margin-bottom: 80px;
 }
 
 .hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-    font-weight: 700;
-}
-
-.hero h1 span {
-    background: linear-gradient(135deg, #3b82f6, #10b981);
+    font-size: 5.5rem; /* 대폭 확대 */
+    margin-bottom: 0.5rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #ffffff 0%, #94a3b8 50%, #475569 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 30px rgba(16, 185, 129, 0.2));
+    animation: titleAppear 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .hero p {
     color: var(--text-secondary);
-    font-size: 1.1rem;
-    max-width: 600px;
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    max-width: 800px;
     margin: 0 auto 30px;
+    opacity: 0.8;
 }
 
-/* Search */
+/* --- Sophisticated Search Bar --- */
 .search-bar-container {
     position: relative;
-    max-width: 600px;
+    max-width: 850px;
     margin: 0 auto;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 8px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05);
+    backdrop-filter: blur(25px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+}
+
+.search-bar-container:focus-within {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.15), 0 20px 50px rgba(0,0,0,0.4);
+    transform: translateY(-2px);
+    background: rgba(15, 23, 42, 0.8);
 }
 
 .search-icon {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-secondary);
+    margin-left: 20px;
+    color: #475569;
+    font-size: 1.2rem;
 }
 
 #search-input {
-    width: 100%;
-    padding: 18px 20px 18px 50px;
-    font-size: 1.1rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    flex: 1;
+    padding: 18px 20px;
+    font-size: 1.25rem;
+    background: transparent;
+    border: none;
     color: var(--text-primary);
     outline: none;
-    transition: var(--transition-normal);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    font-family: 'Inter', sans-serif;
 }
 
-#search-input:focus {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
-    background: rgba(30, 41, 59, 0.9);
+#search-input::placeholder {
+    color: #475569;
+}
+
+/* Action Button Inside Search */
+.search-action-btn {
+    padding: 14px 35px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 18px;
+    color: white;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 10px;
+}
+
+.search-action-btn:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+    transform: scale(1.02);
+}
+
+@keyframes titleAppear {
+    from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 /* Filter Container */
@@ -966,4 +1009,229 @@ nav {
     background: rgba(74, 222, 128, 0.1);
     border-color: var(--valuation-under);
     color: var(--valuation-under);
+}
+
+/* --- Dynamic Data Background --- */
+.dynamic-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('hero-bg.png') center/cover no-repeat;
+    z-index: -1;
+    opacity: 0.25; /* 은은하게 깔림 */
+    filter: blur(2px) brightness(0.7);
+    animation: bgMovement 60s linear infinite alternate;
+}
+
+@keyframes bgMovement {
+    0% { transform: scale(1) translate(0, 0); }
+    100% { transform: scale(1.1) translate(-20px, -20px); }
+}
+
+/* --- Sophisticated Branding (Logo) --- */
+.brand-identity {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2px;
+}
+
+.logo i {
+    color: #10b981;
+    filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+}
+
+.logo-text {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    background: linear-gradient(to bottom, #ffffff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+}
+
+.logo-accent {
+    color: #10b981;
+    -webkit-text-fill-color: #10b981;
+    text-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.brand-tagline {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--text-secondary);
+    font-weight: 700;
+    margin-left: 45px;
+    opacity: 0.6;
+}
+
+/* --- Advanced Institutional Footer --- */
+.app-footer {
+    margin-top: 100px;
+    padding: 80px 20px 40px;
+    background: linear-gradient(to bottom, transparent, rgba(10, 15, 28, 0.95));
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.footer-content {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 60px;
+    margin-bottom: 60px;
+    text-align: left;
+}
+
+.footer-section h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent-primary);
+    margin-bottom: 25px;
+}
+
+.creator-profile .profile-box {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255,255,255,0.03);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.creator-profile .avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.creator-profile .name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.creator-profile .role {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.license-list {
+    list-style: none;
+    padding: 0;
+}
+
+.license-list li {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.license-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent-primary);
+}
+
+.footer-bottom {
+    padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    text-align: center;
+}
+
+.footer-links {
+    margin-bottom: 20px;
+}
+
+.footer-links a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin: 0 15px;
+    transition: 0.2s;
+}
+
+.footer-links a:hover {
+    color: var(--accent-primary);
+}
+
+.footer-disclaimer {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 20px;
+    line-height: 1.6;
+    opacity: 0.7;
+}
+
+.copyright {
+    font-size: 0.75rem;
+    color: #475569;
+}
+
+/* --- Data Integrity UI Components --- */
+.source-label {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.source-official {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.source-sandbox {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.harness-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    background: var(--accent-primary);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 8px;
+}
+
+@media (max-width: 768px) {
+    .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero h1 { font-size: 3.5rem; }
 }

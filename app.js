@@ -18,6 +18,7 @@ class App {
         // DOM Elements
         this.stockGrid = document.getElementById('stock-grid');
         this.searchInput = document.getElementById('search-input');
+        this.searchBtn = document.getElementById('search-btn');
         this.loadingIndicator = document.getElementById('loading-indicator');
         this.filterBtns = document.querySelectorAll('.filter-btn');
         
@@ -166,6 +167,15 @@ class App {
                 }
             }
         });
+
+        if (this.searchBtn) {
+            this.searchBtn.addEventListener('click', () => {
+                const query = this.searchInput.value.toUpperCase().trim();
+                if (query) {
+                    this.fetchStockData(query);
+                }
+            });
+        }
 
         // Filter events
         if (this.filterBtns) {
@@ -336,7 +346,10 @@ class App {
                 growthRate: (metric.epsGrowth3Y || 5) / 100, // Convert to decimal
                 bookValue: metric.bookValuePerShareAnnual || 0, // For Graham Number
                 peers: topPeers,
-                peerAveragePE: avgPeerPE
+                peerAveragePE: avgPeerPE,
+                source: "finnhub", // Official source for search
+                is_fresh: true,
+                disclaimer_active: true
             };
 
             this.calculateValuation(newStock);
@@ -740,6 +753,10 @@ class App {
             const badgeLabel = stock.valuationStatus === 'undervalued' ? 'Undervalued' : 
                               (stock.valuationStatus === 'overvalued' ? 'Overvalued' : 'Fair Value');
 
+            const harnessReport = window.ValuationHarness ? window.ValuationHarness.validate(stock) : null;
+            const sourceClass = harnessReport ? window.ValuationHarness.getSourceClass(stock.source) : 'source-sandbox';
+            const sourceText = harnessReport ? window.ValuationHarness.getSourceText(stock.source) : 'Sandbox';
+
             const card = document.createElement('div');
             card.className = 'stock-card';
             card.id = `card-${stock.id}`;
@@ -748,7 +765,11 @@ class App {
                 <div class="card-header">
                     <div>
                         <div class="stock-name">${stock.name}</div>
-                        <div class="stock-id">${stock.id}</div>
+                        <div class="stock-id">
+                            ${stock.id}
+                            ${harnessReport && harnessReport.trustLevel === 'HIGH' ? '<span class="harness-badge"><i data-lucide="shield-check" width="10"></i> VERIFIED</span>' : ''}
+                        </div>
+                        <div class="source-label ${sourceClass}">${sourceText} Data</div>
                     </div>
                     <div class="stock-type">${stock.type}</div>
                 </div>

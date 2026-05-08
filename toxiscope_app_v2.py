@@ -6,8 +6,20 @@ import base64
 import sys
 import os
 
-# Add the current directory to sys.path for Cloud deployments
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# --- Robust Module Resolution ---
+def add_project_root():
+    search_path = os.path.abspath(os.path.dirname(__file__))
+    for _ in range(5):  # Climb up to 5 levels
+        if os.path.exists(os.path.join(search_path, 'core')):
+            if search_path not in sys.path:
+                sys.path.insert(0, search_path)
+            return True
+        search_path = os.path.dirname(search_path)
+    return False
+
+if not add_project_root():
+    st.error("Critical Error: 'core' module not found in any parent directories.")
+    st.stop()
 
 # Debugging: List directory contents to verify file structure on Cloud
 try:

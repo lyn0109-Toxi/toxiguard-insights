@@ -8,6 +8,7 @@
 ## Phase 2: Regulatory Engine Enhancement
 - [x] Task 2.1: Integrate ICH M7 Class 1-5 categorization logic. | DoD: API returns correct classification for known impurities. | Status: cc:완료 [a3b7c9]
 - [x] Task 2.2: Implement proactive degradation pathway simulation using RDKit. | DoD: Predicts standard degradation products for Atorvastatin. | Status: cc:완료 [e7d8f2]
+- [x] Task 2.3: Implement harnessed evidence package and worker-report validation. | DoD: `worker-report.v1` is generated with R01-R13 validation gates and Evidence/QSAR traceability. | Status: cc:완료 [harness-v1]
 
 ## Phase 3: Reporting & Automation
 - [ ] Task 3.1: Automate daily regulatory brief generation to Blogger. | DoD: `cron.js` successfully posts a validated toxicological report. | Status: cc:TODO

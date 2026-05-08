@@ -1,16 +1,32 @@
-# React + Vite
+# ToxiScope & PharmaScope AI Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📊 PharmaScope: Professional Stock Valuation
+Institutional-grade financial analysis platform with a compliance-first engine.
+- **Valuation Harness**: Real-time validation of data integrity, freshness, and model concordance.
+- **Compliance Dashboard**: Transparent trust-level labeling (Official vs Sandbox).
+- **Institutional Reporting**: Narrative generation for investment decision support.
 
-Currently, two official plugins are available:
+## 🔬 ToxiScope AI: Regulatory Intelligence
+Precision in silico toxicology and regulatory decision support platform.
+- **ICH M7 Alignment**: QSAR, impurity evidence, and degradation profiling.
+- **Submission Support**: Automated generation of submission-ready regulatory documents.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Deployment & Run
+### Streamlit Cloud (ToxiScope)
+- Repository: `lyn0109-Toxi/pharmascope`
+- Branch: `main`
+- Main path: `streamlit_app.py`
 
-## React Compiler
+### Web Dashboard (PharmaScope)
+- Static hosting compatible (GitHub Pages, Vercel, Netlify).
+- Local run: `npm install && npm run dev`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Core Modules
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `core/regulatory.py`: compatibility API for app and tests
+- `core/qsar.py`: expert and statistical structural alert logic
+- `core/evidence.py`: evidence objects and source traceability
+- `core/compendial.py`: USP/EP/DMF-style known impurity context
+- `core/degradation.py`: predicted degradation product assessment
+- `core/harness.py`: validation gates and worker-report style manifest
+- `core/reporting.py`: regulatory narrative generation

@@ -1,3 +1,9 @@
+# --- LEGAL & INTELLECTUAL PROPERTY NOTICE ---
+# Copyright (c) 2026 Young Lee (lyn0109-Toxi). All Rights Reserved.
+# This software and its associated UI/UX design are PROPRIETARY.
+# Unauthorized copying, modification, or distribution is strictly prohibited.
+# --------------------------------------------
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -7,87 +13,163 @@ import os
 import urllib.parse
 import requests
 
-# Add the current directory to sys.path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# --- Robust Module Resolution ---
+import sys
+import os
+from pathlib import Path
+
+def add_project_root():
+    try:
+        # Check script directory and working directory
+        starts = [Path(__file__).resolve().parent, Path.cwd()]
+        for start in starts:
+            for parent in [start] + list(start.parents):
+                if (parent / 'core').is_dir():
+                    path_str = str(parent)
+                    if path_str not in sys.path:
+                        sys.path.insert(0, path_str)
+                    return True
+    except Exception:
+        pass
+    return False
+
+if not add_project_root():
+    st.error("Critical Error: 'core' module not found in any parent directories.")
+    st.info(f"Current Working Directory: {os.getcwd()}")
+    st.info(f"Script File: {__file__ if '__file__' in globals() else 'Unknown'}")
+    st.stop()
 
 try:
-    from core.regulatory import get_smiles_from_name, assess_genotoxicity, predict_degradation_products, get_pharmacopeia_info, get_experimental_detail
+    from core.regulatory import (
+        build_evidence_package,
+        build_harnessed_evidence_package,
+        generate_regulatory_narrative,
+        get_smiles_from_name,
+        assess_genotoxicity,
+        predict_degradation_products,
+        get_pharmacopeia_info,
+        get_experimental_detail,
+        match_known_impurities,
+    )
 except ImportError as e:
     st.error(f"Module Import Error: {e}")
     st.stop()
 
-# Try importing RDKit
-try:
-    from rdkit import Chem
-    from rdkit.Chem import Draw
-    RDKIT_AVAILABLE = True
-except ImportError:
-    RDKIT_AVAILABLE = False
-
 # --- Page Configuration ---
 st.set_page_config(
-    page_title="ToxiScope AI | Regulatory Intelligence",
+    page_title="PharmaScope™ | Institutional Intelligence",
     page_icon="🔬",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# --- CSS: Premium Design System ---
+# --- CSS: Sophisticated Design System & IP Protection ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
-    --bg-dark: #0f172a;
-    --accent: #0ea5e9;
-    --accent-glow: rgba(14, 165, 233, 0.3);
-    --glass: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --bg-dark: #020617;
+    --accent-primary: #10b981;
+    --accent-glow: rgba(16, 185, 129, 0.4);
     --text-main: #f1f5f9;
+    --glass: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 .stApp {
     background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.05), transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.05), transparent 40%);
     color: var(--text-main);
     font-family: 'Outfit', sans-serif;
 }
 
-.glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
+/* --- Premium Branding: PharmaScope™ --- */
+.brand-container {
+    padding: 2rem 0;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 3rem;
+}
+
+.logo-main {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-accent {
+    color: var(--accent-primary);
+    -webkit-text-fill-color: var(--accent-primary);
+    text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.tm-symbol {
+    font-size: 1rem;
+    vertical-align: super;
+    margin-left: 2px;
+    opacity: 0.7;
+}
+
+.tagline {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4em;
+    color: #64748b;
+    font-weight: 700;
+    margin-top: -5px;
+}
+
+/* --- Hero & Interaction --- */
+.hero-box {
+    text-align: center;
+    padding: 4rem 0;
 }
 
 .hero-title {
-    font-size: 4.5rem;
-    font-weight: 900;
-    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    font-size: 5rem;
+    font-weight: 950;
+    background: linear-gradient(to bottom, #fff, #475569);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
-.accent-text {
-    color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.3em;
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-
-.badge {
-    padding: 0.4rem 1rem;
-    border-radius: 100px;
+/* Rights Protection Footer */
+.protection-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    background: rgba(2, 6, 23, 0.9);
+    border-top: 1px solid var(--glass-border);
+    text-align: center;
     font-size: 0.8rem;
-    font-weight: 800;
-    text-transform: uppercase;
+    color: #475569;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
 }
+</style>
+""", unsafe_allow_html=True)
 
-.badge-class1 { background: #ef4444; color: white; }
+# --- Header Section with IP Branding ---
+st.markdown(f"""
+    <div class="brand-container">
+        <div class="logo-main">
+            <span style="color:#10b981;">⚡</span> Pharma<span class="logo-accent">Scope</span><span class="tm-symbol">™</span>
+        </div>
+        <div class="tagline">Institutional Regulatory Intelligence Platform</div>
+    </div>
+""", unsafe_allow_html=True)
 .badge-class3 { background: #f59e0b; color: white; }
 .badge-class5 { background: #10b981; color: white; }
 
@@ -101,6 +183,12 @@ if "results" not in st.session_state:
     st.session_state.results = None
 if "degradants" not in st.session_state:
     st.session_state.degradants = []
+if "identity" not in st.session_state:
+    st.session_state.identity = {}
+if "known_impurities" not in st.session_state:
+    st.session_state.known_impurities = []
+if "evidence_package" not in st.session_state:
+    st.session_state.evidence_package = None
 
 # --- UI Layout ---
 with st.sidebar:
@@ -108,6 +196,7 @@ with st.sidebar:
     st.title("Project Scope")
     project_id = st.text_input("Project ID", value="TXS-2026-001")
     analyst = st.text_input("Expert Analyst", value="Lee Young-nam")
+    daily_dose_mg = st.number_input("Daily Dose (mg/day)", min_value=0.001, value=10.0, step=1.0)
     st.markdown("---")
     st.markdown("### Compliance Rules")
     st.checkbox("ICH M7(R2) Guidelines", value=True, disabled=True)
@@ -131,6 +220,7 @@ with col1:
                 res = get_smiles_from_name(input_name)
                 if res:
                     st.session_state.smiles = res['smiles']
+                    st.session_state.identity = res
                     st.success(f"Found via {res['source']}")
                 else:
                     st.error("Name resolution failed. Please input SMILES manually.")
@@ -141,8 +231,17 @@ with col1:
     if st.button("🚀 Run Regulatory Assessment", use_container_width=True):
         if st.session_state.smiles:
             with st.spinner("Analyzing toxicity and degradation..."):
-                st.session_state.results = assess_genotoxicity(st.session_state.smiles)
-                st.session_state.degradants = predict_degradation_products(st.session_state.smiles)
+                package = build_harnessed_evidence_package(
+                    input_name,
+                    st.session_state.smiles,
+                    daily_dose_mg=daily_dose_mg,
+                    project_id=project_id,
+                    analyst=analyst,
+                )
+                st.session_state.evidence_package = package
+                st.session_state.results = package["assessment"]
+                st.session_state.degradants = package["degradation_products"]
+                st.session_state.known_impurities = package["known_impurity_matches"]
         else:
             st.warning("Please provide a SMILES string.")
     st.markdown("</div>", unsafe_allow_html=True)
@@ -156,7 +255,7 @@ with col2:
             <div class='accent-text'>Assessment Result</div>
             <h2 style='font-size: 3rem; margin-top: 1rem;'>{res['class']}</h2>
             <div class='badge {status_color}' style='display: inline-block; margin-top: 1rem;'>{res['status']}</div>
-            <p style='margin-top: 1.5rem; color: #94a3b8;'>Verified by Multi-Agency Database</p>
+            <p style='margin-top: 1.5rem; color: #94a3b8;'>Validated through Harness R01-R13 gates</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -168,64 +267,171 @@ if st.session_state.results:
     with q_col2: st.metric("Max Conc. (ppm)", f"{ttc.get('limit_ppm')} ppm")
     with q_col3: st.metric("Regulatory Class", st.session_state.results['class'])
 
-    tab1, tab2, tab3, tab4 = st.tabs(["⚖️ Evidence Matrix", "🧬 Degradation Profile", "📚 USP/EP/DMF Ref", "📝 Regulatory Draft"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["⚖️ Evidence Matrix", "🧬 Degradation Profile", "📚 USP/EP/DMF Ref", "📝 Regulatory Draft", "🧾 Harness Report"])
     
     with tab1:
-        st.markdown("<div class='accent-text'>ICH M7 Dual-Methodology Validation</div>", unsafe_allow_html=True)
-        e_col1, e_col2, e_col3 = st.columns(3)
-        
-        expert_alerts = [a for a in st.session_state.results['alerts'] if a['method'] in ['Expert Rule-based', 'Historical Evidence']]
-        expert_html = ""
-        for a in expert_alerts:
-            expert_html += f"<div style='background: rgba(255,165,0,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid orange;'><b style='color: orange;'>{a['alert']}</b><br><small style='color: #94a3b8;'>{a.get('reference', 'N/A')}</small><p style='font-size: 0.85rem;'>{a.get('mechanism', '')}</p></div>"
-        
-        with e_col1:
-            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>🧠 Method 1: Expert</h4>{expert_html if expert_html else '✅ No Expert Alerts'}</div>", unsafe_allow_html=True)
+        st.markdown("<div class='accent-text'>ICH M7 Evidence Object Matrix</div>", unsafe_allow_html=True)
+        qsar = st.session_state.results.get("qsar_summary", {})
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Expert QSAR", qsar.get("expert_call", "N/A"))
+        c2.metric("Statistical SAR", qsar.get("statistical_call", "N/A"))
+        c3.metric("Concordance", qsar.get("concordance", "N/A"))
+        c4.metric("Evidence Items", len(st.session_state.results.get("evidence_objects", [])))
 
-        stat_alerts = [a for a in st.session_state.results['alerts'] if a['method'] == 'Statistical (SAR)']
-        stat_html = ""
-        for a in stat_alerts:
-            stat_html += f"<div style='background: rgba(255,0,0,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid red;'><b style='color: #ef4444;'>{a['alert']}</b><br><small style='color: #94a3b8;'>Prob: {int(a['probability']*100)}%</small></div>"
+        st.markdown("#### Structural Explanation")
+        st.info(st.session_state.results.get("structural_explanation", "No structural explanation available."))
+        st.caption(qsar.get("applicability_domain", "Applicability domain not documented."))
+
+        evidence_rows = []
+        for item in st.session_state.results.get("evidence_objects", []):
+            evidence_rows.append({
+                "Tier": item.get("source_tier_label"),
+                "Type": item.get("evidence_type"),
+                "Endpoint": item.get("endpoint"),
+                "Result": item.get("result"),
+                "Source": item.get("source_name"),
+                "Confidence": item.get("confidence"),
+                "Reasoning": item.get("reasoning"),
+                "URL": item.get("source_url") or "",
+            })
+
+        if evidence_rows:
+            st.dataframe(pd.DataFrame(evidence_rows), use_container_width=True, hide_index=True)
+        else:
+            st.warning("No structured evidence objects were returned.")
+
+        st.markdown("#### QSAR Dual-Method Detail")
+        e_col1, e_col2 = st.columns(2)
+        with e_col1:
+            st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+            st.markdown("##### Method 1: Expert rule-based")
+            expert_alerts = st.session_state.results.get("expert_alerts", [])
+            if expert_alerts:
+                for alert in expert_alerts:
+                    st.warning(f"**{alert.get('alert')}**")
+                    st.write(alert.get("mechanism", ""))
+                    st.caption(f"Matched atoms: {alert.get('matched_atoms', 'N/A')} | Ref: {alert.get('reference', 'N/A')}")
+            else:
+                st.success("No expert-rule structural alert identified.")
+            st.markdown("</div>", unsafe_allow_html=True)
 
         with e_col2:
-            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>📊 Method 2: Statistical</h4>{stat_html if stat_html else '✅ No Statistical Alerts'}</div>", unsafe_allow_html=True)
-
-        exp_data = get_experimental_detail(st.session_state.smiles)
-        assay_html = ""
-        if exp_data:
-            for a in exp_data['assay_data']:
-                icon = "🔴" if a['result'] == "Positive" else "🟢"
-                assay_html += f"<div style='font-size: 0.9rem; margin-bottom: 5px;'>{icon} <b>{a['test']}</b>: {a['result']}</div>"
-
-        with e_col3:
-            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>🧪 Assay Evidence</h4>{assay_html if assay_html else 'No historical assay data found.'}</div>", unsafe_allow_html=True)
+            st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+            st.markdown("##### Method 2: Statistical SAR")
+            stat_alerts = st.session_state.results.get("statistical_alerts", [])
+            if stat_alerts:
+                for alert in stat_alerts:
+                    st.error(f"**{alert.get('alert')}**")
+                    st.write(alert.get("reasoning", ""))
+                    st.caption(f"Probability: {int(alert.get('probability', 0) * 100)}% | Matched atoms: {alert.get('matched_atoms', 'N/A')}")
+            else:
+                st.success("No statistical fragment alert identified.")
+            st.markdown("</div>", unsafe_allow_html=True)
 
     with tab2:
         if st.session_state.degradants:
             for d in st.session_state.degradants:
-                with st.expander(f"🚩 [{d['pathway']}] Product Identification"):
-                    st.write(f"**Rationale**: {d['rationale']}")
-                    st.write(f"**Condition**: {d['condition']}")
-                    st.write(f"**Regulatory Significance**: {d.get('significance', 'N/A')}")
+                with st.expander(f"🚩 [{d['pathway']}] {d.get('name', 'Product Identification')}"):
+                    d_col1, d_col2 = st.columns([1, 1])
+                    with d_col1:
+                        st.write(f"**SMILES**: `{d.get('smiles')}`")
+                        st.write(f"**ICH M7 Result**: {d.get('class')} ({d.get('status')})")
+                        st.write(f"**Condition / Origin**: {d.get('condition')}")
+                        st.write(f"**Risk Level**: {d.get('risk')}")
+                    with d_col2:
+                        st.write(f"**Rationale**: {d.get('rationale')}")
+                        st.write(f"**Regulatory Significance**: {d.get('significance', 'N/A')}")
+                        if d.get("source_url"):
+                            st.markdown(f"[Source reference]({d['source_url']})")
+                    st.markdown("**Structural/QSAR Interpretation**")
+                    st.info(d.get("structural_explanation") or "No structural explanation available.")
+                    d_evidence = d.get("evidence_objects", [])
+                    if d_evidence:
+                        st.dataframe(pd.DataFrame([{
+                            "Tier": e.get("source_tier_label"),
+                            "Type": e.get("evidence_type"),
+                            "Result": e.get("result"),
+                            "Source": e.get("source_name"),
+                            "Reasoning": e.get("reasoning"),
+                        } for e in d_evidence]), use_container_width=True, hide_index=True)
         else:
             st.info("No degradation products predicted.")
+
+    with tab3:
+        st.markdown("<div class='accent-text'>Known Impurity / Degradation Product Search</div>", unsafe_allow_html=True)
+        pharma_info = get_pharmacopeia_info(input_name)
+        if pharma_info:
+            st.markdown("#### Parent Compound Reference")
+            st.write(f"**Monograph / Reference Context**: {pharma_info.get('monograph_ref')}")
+            st.write(f"**DMF / Control Summary**: {pharma_info.get('dmf_summary')}")
+        else:
+            st.info("No parent compound compendial profile is loaded for this compound name.")
+
+        matches = st.session_state.known_impurities or match_known_impurities(input_name, st.session_state.smiles)
+        if matches:
+            match_rows = []
+            for match in matches:
+                match_rows.append({
+                    "Parent": match.get("parent", input_name),
+                    "Impurity ID": match.get("id"),
+                    "Name": match.get("name"),
+                    "Origin": match.get("origin"),
+                    "Alert": match.get("alert"),
+                    "Provisional Class": f"Class {match.get('class')}",
+                    "CAS": match.get("cas") or "",
+                    "Source": match.get("source_name"),
+                    "URL": match.get("source_url") or "",
+                    "Issue": match.get("issue"),
+                })
+            st.dataframe(pd.DataFrame(match_rows), use_container_width=True, hide_index=True)
+        else:
+            st.warning("No USP/EP/DMF-style impurity match found in the current curated library.")
 
     with tab4:
         st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
         st.markdown("#### Submission-Ready Regulatory Narrative")
-        narrative = f"""
-        The impurity profile of **{input_name or 'the compound'}** was assessed according to **ICH M7(R2)**.
-        Final Result: **{st.session_state.results['class']}**.
-        
-        Calculated TTC: **{ttc.get('limit_ug_day')} µg/day** (Max Conc: **{ttc.get('limit_ppm')} ppm**).
-        """
-        st.markdown(narrative)
+        narrative = generate_regulatory_narrative(st.session_state.results, input_name or "the submitted compound")
+        st.text_area("Narrative Preview", value=narrative, height=360)
         st.button("📥 Download PDF Report")
         st.markdown("</div>", unsafe_allow_html=True)
+
+    with tab5:
+        package = st.session_state.evidence_package or {}
+        report = package.get("worker_report", {})
+        manifest = package.get("harness_manifest", {})
+        validation = report.get("validation", {})
+
+        st.markdown("<div class='accent-text'>worker-report.v1</div>", unsafe_allow_html=True)
+        h_col1, h_col2, h_col3, h_col4 = st.columns(4)
+        h_col1.metric("Harness", manifest.get("status", "N/A"))
+        h_col2.metric("Policy", manifest.get("policy", "N/A"))
+        h_col3.metric("Passed", validation.get("passed", 0))
+        h_col4.metric("Review", validation.get("review", 0))
+
+        gates = validation.get("gates") or package.get("validation_gates") or st.session_state.results.get("validation_gates", [])
+        if gates:
+            st.markdown("#### Validation Gates")
+            st.dataframe(pd.DataFrame(gates), use_container_width=True, hide_index=True)
+
+        if report:
+            st.markdown("#### Harness Summary")
+            st.json(report, expanded=False)
+        else:
+            st.warning("Harness report is not available for this run.")
 
 else:
     st.image("./hero.png", use_container_width=True)
     st.markdown("<div style='text-align: center; color: #64748b;'>Precision regulatory decision support platform.</div>", unsafe_allow_html=True)
 
-st.markdown("---")
-st.caption(f"ToxiScope AI v2.0 | Harness: {project_id} | Security Level: R01-R13")
+st.markdown(f"""
+    <div class="protection-footer">
+        © 2026 PharmaScope™ Institutional Intelligence. Developed and Owned by <strong>Young Lee (lyn0109-Toxi)</strong>. 
+        <br>
+        Proprietary Software. Unauthorized reverse engineering, copying, or use is prohibited by law. 
+        <br>
+        <span style="opacity: 0.7;">Data Sources: Finnhub, TradingView, RDKit (Licensed/Attributed)</span>
+    </div>
+""", unsafe_allow_html=True)
+
+st.markdown("<br><br><br>", unsafe_allow_html=True)
+st.caption(f"PharmaScope™ | Regulatory Intelligence v2.5 | Security Level: Institutional-R13")

@@ -2,7 +2,12 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from core.regulatory import get_smiles_from_name, assess_genotoxicity, predict_degradation_products
+from core.regulatory import (
+    build_harnessed_evidence_package,
+    get_smiles_from_name,
+    assess_genotoxicity,
+    predict_degradation_products,
+)
 
 def test_sync():
     print("🧪 Testing ToxiGuard-AI Sync...")
@@ -17,7 +22,7 @@ def test_sync():
         
         # 2. Test Degradation for Atorvastatin
         print(f"--- Simulating Degradation for Atorvastatin ---")
-        degradants = predict_degradation_products(ator_smiles)
+        degradants = predict_degradation_products(ator_smiles, parent_name=name)
         if degradants:
             print(f"✅ Predicted {len(degradants)} potential degradants.")
             for d in degradants:
@@ -67,6 +72,15 @@ def test_sync():
         print(f"✅ Correct Class 4 Detected: {eval_res['note']}")
     else:
         print(f"❌ Failed to detect Class 4. Got: {eval_res['class']}")
+
+    # 6. Test Harnessed Evidence Package
+    print("--- Building Harnessed Evidence Package ---")
+    package = build_harnessed_evidence_package("Atorvastatin", ator_smiles)
+    report = package.get("worker_report", {})
+    if report.get("schema") == "worker-report.v1" and report.get("validation", {}).get("passed", 0) >= 3:
+        print("✅ Harness worker-report.v1 generated.")
+    else:
+        print("❌ Harness worker-report.v1 missing or insufficient.")
 
 if __name__ == "__main__":
     test_sync()
