@@ -172,11 +172,10 @@ st.markdown(f"""
         </div>
         <div class="tagline">Institutional Regulatory Intelligence Platform</div>
     </div>
-""", unsafe_allow_html=True)
-.badge-class3 { background: #f59e0b; color: white; }
-.badge-class5 { background: #10b981; color: white; }
-
-</style>
+    <style>
+    .badge-class3 {{ background: #f59e0b; color: white; }}
+    .badge-class5 {{ background: #10b981; color: white; }}
+    </style>
 """, unsafe_allow_html=True)
 
 # --- State Management ---
