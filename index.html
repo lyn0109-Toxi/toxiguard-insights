@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaScope - Real-Time Stock Search & CAPM Analysis</title>
+    <meta name="description" content="Search and compare global stocks in real-time with CAPM-based fair value analysis.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="glass-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i data-lucide="activity"></i>
+                    <span>PharmaScope</span>
+                </div>
+                <nav>
+                    <button class="nav-btn active" id="nav-search">Search</button>
+                    <button class="nav-btn" id="nav-compare">Compare <span id="compare-badge" class="badge">0</span></button>
+                    <button class="nav-btn" id="nav-portfolio">Portfolio</button>
+                    <button class="nav-btn" id="nav-settings" title="API Settings"><i data-lucide="settings" width="18" height="18"></i></button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content: Search Section -->
+        <main id="section-search" class="section active fade-in">
+            <div class="hero">
+                <h1>A <span>New Standard</span> for Stock Analysis</h1>
+                <p>Intuitive stock exploration with real-time data and CAPM valuation</p>
+                
+                <div class="search-bar-container">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search any stock by ticker or name (e.g. AAPL, TSLA, PFE)">
+                </div>
+
+                <div class="filter-container" id="valuation-filters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn undervalued" data-filter="undervalued">🟢 Undervalued</button>
+                    <button class="filter-btn fair" data-filter="fair">🟡 Fair Value</button>
+                    <button class="filter-btn overvalued" data-filter="overvalued">🔴 Overvalued</button>
+                </div>
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="loading-indicator" class="hidden" style="text-align: center; padding: 20px;">
+                <i data-lucide="loader" class="spin" style="animation: spin 1s linear infinite;"></i> Loading data...
+            </div>
+
+            <div class="stock-grid" id="stock-grid">
+                <!-- Stock cards will be rendered here dynamically -->
+            </div>
+        </main>
+
+        <!-- Main Content: Compare Section -->
+        <main id="section-compare" class="section hidden">
+            <div class="hero">
+                <h1>Side-by-Side Comparison</h1>
+                <p>Compare key metrics of selected stocks at a glance</p>
+            </div>
+
+            <div id="compare-container" class="compare-container">
+                <div class="empty-state" id="empty-compare">
+                    <i data-lucide="bar-chart-2"></i>
+                    <p>Select stocks to compare from the Search tab. (Max 3)</p>
+                    <p style="font-size: 0.85rem; margin-top: 10px; opacity: 0.7;">
+                        *Analysis data is sourced from S&P Capital IQ standards and real-time financial APIs.
+                    </p>
+                    <button class="primary-btn" id="go-to-search-btn">Go to Search</button>
+                </div>
+                <div class="compare-table-wrapper hidden" id="compare-table-wrapper">
+                    <table class="compare-table">
+                        <thead>
+                            <tr id="compare-header">
+                                <th>Metric</th>
+                                <!-- Dynamic headers -->
+                            </tr>
+                        </thead>
+                        <tbody id="compare-body">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Main Content: Portfolio Section -->
+        <main id="section-portfolio" class="section hidden">
+            <div class="hero">
+                <h1>Investment Portfolio</h1>
+                <p>Track weighted risk, return, and valuation across your holdings</p>
+            </div>
+
+            <div class="portfolio-dashboard">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <span class="label">Total Market Value</span>
+                        <div class="value" id="portfolio-total-value">$0.00</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="label">Weighted Beta</span>
+                        <div class="value" id="portfolio-weighted-beta">0.00</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="label">Portfolio Valuation Score</span>
+                        <div class="value" id="portfolio-valuation-score">N/A</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                    <button id="export-portfolio-csv" class="secondary-btn" style="display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="download"></i> Download CSV (Excel)
+                    </button>
+                </div>
+
+                <div class="portfolio-layout">
+                    <div class="portfolio-holdings glass-card">
+                        <div class="card-header">
+                            <h3>Current Holdings</h3>
+                        </div>
+                        <div id="portfolio-table-container">
+                            <table class="holdings-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable" data-sort="id">Stock <i data-lucide="chevrons-up-down" width="12"></i></th>
+                                        <th class="sortable" data-sort="price">Price <i data-lucide="chevrons-up-down" width="12"></i></th>
+                                        <th>Shares</th>
+                                        <th class="sortable" data-sort="marketValue">Market Value <i data-lucide="chevrons-up-down" width="12"></i></th>
+                                        <th class="sortable" data-sort="weight">Weight <i data-lucide="chevrons-up-down" width="12"></i></th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="portfolio-body">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="empty-portfolio" class="empty-state">
+                            <i data-lucide="folder-plus"></i>
+                            <p>No stocks in your portfolio yet. Add them from the search results.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="portfolio-analytics glass-card">
+                        <h3>Sector Allocation</h3>
+                        <div class="chart-container">
+                            <canvas id="sector-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Main Content: Detail Section -->
+        <main id="section-detail" class="section hidden">
+            <div class="detail-container">
+                <button id="back-to-search" class="back-btn">
+                    <i data-lucide="arrow-left"></i> Back to List
+                </button>
+                
+                <div id="detail-content">
+                    <!-- Dynamic content injected here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CAPM Analysis Modal -->
+    <div id="capm-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2>Valuation Triangulation</h2>
+                <button id="close-modal" class="icon-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" id="capm-modal-body">
+                <!-- Content injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- API Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2>Real-Time Financial API Settings</h2>
+                <button id="close-settings" class="icon-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 0.9rem; line-height: 1.5;">
+                    To search and track real-time stock data globally, you need a <strong>Finnhub API Key</strong>. 
+                    <a href="https://finnhub.io/register" target="_blank" style="color: var(--accent-primary);">Get one for free here</a>.
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="api-key-input" placeholder="Enter your Finnhub API Key..." style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                    <button id="save-api-key" class="primary-btn" style="margin-top: 0;">Save</button>
+                </div>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 1.1rem; color: var(--text-primary);">Macroeconomic Variables</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.85rem; line-height: 1.4;">
+                    Adjust the inputs used in the CAPM and valuation models. Sync with live market data to fetch the current US 10-Year Treasury Yield and Aswath Damodaran's Implied Equity Risk Premium.
+                </p>
+                <div class="macro-inputs-grid">
+                    <div class="input-group">
+                        <label for="risk-free-rate">Risk-Free Rate (%)</label>
+                        <input type="number" id="risk-free-rate" step="0.01" value="4.50" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                    </div>
+                    <div class="input-group">
+                        <label for="equity-risk-premium">Equity Risk Premium (%)</label>
+                        <input type="number" id="equity-risk-premium" step="0.01" value="4.50" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                    </div>
+                </div>
+                <button id="sync-macro-btn" class="secondary-btn" style="margin-top: 15px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="refresh-cw" id="sync-icon"></i> Sync with Live Market
+                </button>
+                <p id="sync-status" style="margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary); text-align: center;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script modules -->
+    <script src="mockData.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

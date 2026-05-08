@@ -8,3 +8,4 @@ package*.json
 eslint.config.js
 mockData.js
 pharmascope-blogger.html
+.env

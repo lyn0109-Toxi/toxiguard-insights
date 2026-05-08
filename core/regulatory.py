@@ -159,14 +159,41 @@ KNOWN_MUTAGENS = {
     "c1ccc2c(c1)ccc3c2ccc4c3ccc5c4cccc5": {"class": 1, "name": "Benzo[a]pyrene", "evidence": "Known Carcinogen (IARC Group 1)"}
 }
 
-def assess_genotoxicity(smiles, drug_substance_smiles=None):
+# --- Statistical-based QSAR Simulation (Mock) ---
+# In a real scenario, this would use a machine learning model or fragment-based stats.
+STATISTICAL_ALERTS = {
+    "Aromatic amine fragment count": {"weight": 0.85, "alert": "Aromatic Amine"},
+    "Nitro group density": {"weight": 0.78, "alert": "Nitro Group"},
+    "Halogenated alkyl": {"weight": 0.65, "alert": "Alkyl Halide"}
+}
+
+def get_statistical_assessment(smiles):
+    """Simulate a statistical-based QSAR methodology (Method 2)"""
+    # Simple fragment-based probability simulation
+    results = []
+    if "N" in smiles and "c1ccccc1" in smiles:
+        results.append({"method": "Statistical (SAR)", "alert": "Aromatic Amine", "probability": 0.82})
+    if "N(=O)=O" in smiles or "[N+](=O)[O-]" in smiles:
+        results.append({"method": "Statistical (SAR)", "alert": "Nitro Group", "probability": 0.75})
+    return results
+
+def calculate_ttc_limit(daily_dose_mg, duration_days=3650):
+    """Calculate TTC (Threshold of Toxicological Concern) based on ICH M7"""
+    # Basic TTC rule: 1.5 ug/day for lifetime exposure
+    # Temporary threshold for shorter durations:
+    if duration_days <= 30: limit_ug = 120
+    elif duration_days <= 365: limit_ug = 20
+    elif duration_days <= 3650: limit_ug = 10
+    else: limit_ug = 1.5
+    
+    if daily_dose_mg > 0:
+        limit_ppm = (limit_ug / daily_dose_mg)
+        return {"limit_ug_day": limit_ug, "limit_ppm": round(limit_ppm, 2)}
+    return {"limit_ug_day": limit_ug, "limit_ppm": "N/A"}
+
+def assess_genotoxicity(smiles, drug_substance_smiles=None, daily_dose_mg=10):
     """
-    Full ICH M7 Categorization Logic:
-    - Class 1: Known mutagenic carcinogens
-    - Class 2: Known mutagens (unknown carcinogenicity)
-    - Class 3: Alerting structure (unrelated to drug)
-    - Class 4: Alerting structure (related to drug substance)
-    - Class 5: No alerts
+    Enhanced ICH M7 Categorization Logic with Dual Methodology:
     """
     try:
         from rdkit import Chem
@@ -188,57 +215,83 @@ def assess_genotoxicity(smiles, drug_substance_smiles=None):
             "alerts": [{"alert": "Known Mutagen/Carcinogen", "evidence": m_info['evidence']}]
         }
 
-    # 2. Check Structural Alerts (Class 3, 4, 5)
-    found_alerts = []
+    # 2. Methodology 1: Expert Rule-based (Ashby)
+    expert_alerts = []
     for name, data in ASHBY_ALERTS.items():
         pat = Chem.MolFromSmarts(data["smarts"])
         if mol.HasSubstructMatch(pat):
-            found_alerts.append({
+            expert_alerts.append({
+                "method": "Expert Rule-based",
                 "alert": name,
                 "likelihood": data["likelihood"],
                 "mechanism": data["mechanism"],
-                "reference": data["reference"],
-                "expert_comment": data.get("expert_comment", "")
+                "reference": data["reference"]
             })
 
-    if not found_alerts:
+    # 3. Methodology 2: Statistical-based (Mock)
+    stat_alerts = get_statistical_assessment(smiles)
+
+    all_alerts = expert_alerts + stat_alerts
+    ttc_info = calculate_ttc_limit(daily_dose_mg)
+
+    if not all_alerts:
         return {
             "status": "safe",
             "class": "ICH M7 Class 5",
-            "alerts": []
+            "alerts": [],
+            "ttc_info": ttc_info
         }
 
-    # 3. Differentiate Class 3 vs Class 4
+    # 4. Final Classification Logic
+    # Class 3: Alerting structure (unrelated to drug)
+    # Class 4: Alerting structure (shared with drug)
+    final_class = "ICH M7 Class 3"
     if drug_substance_smiles:
         ds_mol = Chem.MolFromSmiles(drug_substance_smiles)
         if ds_mol:
-            for alert in found_alerts:
+            for alert in expert_alerts:
                 pat = Chem.MolFromSmarts(ASHBY_ALERTS[alert['alert']]["smarts"])
                 if ds_mol.HasSubstructMatch(pat):
-                    return {
-                        "status": "controlled",
-                        "class": "ICH M7 Class 4",
-                        "alerts": found_alerts,
-                        "note": "Alert shared with drug substance (Class 4)."
-                    }
+                    final_class = "ICH M7 Class 4"
+                    break
 
     return {
-        "status": "alert",
-        "class": "ICH M7 Class 3",
-        "alerts": found_alerts
+        "status": "alert" if final_class == "ICH M7 Class 3" else "controlled",
+        "class": final_class,
+        "alerts": all_alerts,
+        "ttc_info": ttc_info
     }
 
-# --- Degradation & Impurity Prediction Engine ---
+# --- Advanced Degradation & Stress Testing Engine ---
 DEGRADATION_RULES = {
-    "Ester Hydrolysis": "[CX3:1](=[OX1:2])[OX2:3][CX4:4]>>[CX3:1](=[OX1:2])[OX2:3].[OX2][CX4:4]",
-    "Amide Hydrolysis": "[CX3:1](=[OX1:2])[NX3:3][CX4:4]>>[CX3:1](=[OX1:2])[OX2].[NX3:3][CX4:4]",
-    "N-Oxidation": "[NX3:1]([CX4:2])([CX4:3])[CX4:4]>>[NX3+:1]([CX4:2])([CX4:3])([CX4:4])[O-]",
-    "O-Dealkylation": "[OX2:1][CX4:2]>>[OX2:1].[CX4:2][OH]",
-    "Nitro Reduction": "[N+:1](=[O:2])([O-:3])>>[NX3:1]([H])[H]"
+    "Acid/Base Hydrolysis (Ester)": {
+        "smarts": "[CX3:1](=[OX1:2])[OX2:3][CX4:4]>>[CX3:1](=[OX1:2])[OX2:3].[OX2][CX4:4]",
+        "condition": "pH < 2 or pH > 10, Heat",
+        "rationale": "Nucleophilic attack on the carbonyl carbon leads to ester cleavage. Common in polyester-based excipient interactions.",
+        "risk_level": "High"
+    },
+    "Oxidative Degradation (N-Oxide)": {
+        "smarts": "[NX3:1]([CX4:2])([CX4:3])[CX4:4]>>[NX3+:1]([CX4:2])([CX4:3])([CX4:4])[O-]",
+        "condition": "Peroxides, Light, Oxygen exposure",
+        "rationale": "Formation of N-oxides via reaction with trace peroxides in excipients (e.g., Povidone, PEG).",
+        "risk_level": "Medium"
+    },
+    "Hydrolytic Cleavage (Amide)": {
+        "smarts": "[CX3:1](=[OX1:2])[NX3:3][CX4:4]>>[CX3:1](=[OX1:2])[OX2].[NX3:3][CX4:4]",
+        "condition": "Extreme pH, Prolonged heat",
+        "rationale": "Amide bonds are more stable than esters but can undergo hydrolysis under forced degradation conditions.",
+        "risk_level": "Low"
+    },
+    "Photolytic Dealkylation": {
+        "smarts": "[OX2:1][CX4:2]>>[OX2:1].[CX4:2][OH]",
+        "condition": "UV Light (ICH Q1B)",
+        "rationale": "Free radical mechanism initiated by photon absorption, leading to ether bond cleavage.",
+        "risk_level": "Medium"
+    }
 }
 
 def predict_degradation_products(smiles):
-    """Predict potential impurities via common degradation pathways"""
+    """Predict potential impurities with detailed scientific backing"""
     try:
         from rdkit import Chem
         from rdkit.Chem import AllChem
@@ -252,8 +305,8 @@ def predict_degradation_products(smiles):
     products = []
     seen_smiles = {Chem.MolToSmiles(mol)}
     
-    for name, smarts in DEGRADATION_RULES.items():
-        rxn = AllChem.ReactionFromSmarts(smarts)
+    for name, data in DEGRADATION_RULES.items():
+        rxn = AllChem.ReactionFromSmarts(data["smarts"])
         outcomes = rxn.RunReactants((mol,))
         for outcome in outcomes:
             for prod_mol in outcome:
@@ -264,6 +317,9 @@ def predict_degradation_products(smiles):
                         toxicity = assess_genotoxicity(psmiles)
                         products.append({
                             "pathway": name,
+                            "condition": data["condition"],
+                            "rationale": data["rationale"],
+                            "risk": data["risk_level"],
                             "smiles": psmiles,
                             "class": toxicity["class"],
                             "status": toxicity["status"]

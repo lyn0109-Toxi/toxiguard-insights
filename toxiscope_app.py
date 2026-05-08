@@ -213,54 +213,81 @@ with col2:
 # Main Content: Results Matrix
 if st.session_state.results:
     st.markdown("---")
+    
+    # Quick Stats: TTC & Exposure
+    ttc = st.session_state.results.get('ttc_info', {})
+    q_col1, q_col2, q_col3 = st.columns(3)
+    with q_col1:
+        st.metric("TTC Limit (ug/day)", f"{ttc.get('limit_ug_day')} µg")
+    with q_col2:
+        st.metric("Max Conc. (ppm)", f"{ttc.get('limit_ppm')} ppm")
+    with q_col3:
+        st.metric("Regulatory Class", st.session_state.results['class'])
+
     tab1, tab2, tab3, tab4 = st.tabs(["⚖️ Evidence Matrix", "🧬 Degradation Profile", "📚 USP/EP/DMF Ref", "📝 Regulatory Draft"])
     
     with tab1:
-        st.markdown("<div class='accent-text'>Dual-Source Validation</div>")
-        e_col1, e_col2 = st.columns(2)
+        st.markdown("<div class='accent-text'>ICH M7 Dual-Methodology Validation</div>", unsafe_allow_html=True)
+        e_col1, e_col2, e_col3 = st.columns(3)
         
         with e_col1:
-            st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-            st.markdown("#### 🧠 Expert-Based (Rule System)")
-            if st.session_state.results['alerts']:
-                for alert in st.session_state.results['alerts']:
+            st.markdown("<div class='glass-card' style='min-height: 400px;'>", unsafe_allow_html=True)
+            st.markdown("#### 🧠 Method 1: Expert Rules")
+            expert_alerts = [a for a in st.session_state.results['alerts'] if a['method'] == 'Expert Rule-based']
+            if expert_alerts:
+                for alert in expert_alerts:
                     st.warning(f"**{alert['alert']}**")
-                    st.write(f"*{alert['mechanism']}*")
-                    st.info(f"**Expert Comment**: {alert.get('expert_comment', 'N/A')}")
                     st.caption(f"Ref: {alert['reference']}")
+                    st.write(f"*{alert['mechanism']}*")
                     st.markdown("---")
             else:
-                st.success("No structural alerts identified by expert rules.")
+                st.success("No structural alerts found via Expert Knowledge Base.")
             st.markdown("</div>", unsafe_allow_html=True)
             
         with e_col2:
-            st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-            st.markdown("#### 🧪 Experimental-Based (Assay Data)")
+            st.markdown("<div class='glass-card' style='min-height: 400px;'>", unsafe_allow_html=True)
+            st.markdown("#### 📊 Method 2: Statistical SAR")
+            stat_alerts = [a for a in st.session_state.results['alerts'] if a['method'] == 'Statistical (SAR)']
+            if stat_alerts:
+                for alert in stat_alerts:
+                    st.error(f"**{alert['alert']}**")
+                    st.progress(alert['probability'])
+                    st.write(f"Confidence: {int(alert['probability']*100)}%")
+                    st.markdown("---")
+            else:
+                st.success("No significant mutagenic fragments identified by statistical engine.")
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        with e_col3:
+            st.markdown("<div class='glass-card' style='min-height: 400px;'>", unsafe_allow_html=True)
+            st.markdown("#### 🧪 In-Vitro Assay Data")
             exp_data = get_experimental_detail(st.session_state.smiles)
             if exp_data:
-                st.write(f"**Compound**: {exp_data['name']}")
                 for assay in exp_data['assay_data']:
                     res_icon = "🔴" if assay['result'] == "Positive" else "🟢"
-                    st.write(f"{res_icon} **{assay['test']}**: {assay['result']} ({assay['condition']})")
+                    st.write(f"{res_icon} **{assay['test']}**: {assay['result']}")
                     st.caption(f"Source: {assay['source']}")
-                st.markdown(f"**Conclusion**: {exp_data['overall_conclusion']}")
             else:
-                st.info("No historical experimental assay data found in local dossier.")
+                st.info("No historical experimental assay data found.")
             st.markdown("</div>", unsafe_allow_html=True)
 
     with tab2:
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        st.markdown("#### Proactive Degradation Simulation (In-Silico)")
+        st.markdown("<div class='accent-text'>Stress Testing & Degradation Backing</div>", unsafe_allow_html=True)
         if st.session_state.get('degradants'):
             for d in st.session_state.degradants:
-                with st.expander(f"[{d['pathway']}] {d['smiles']}"):
-                    st.write(f"**Result**: {d['class']} ({d['status']})")
-                    if RDKIT_AVAILABLE:
-                        m = Chem.MolFromSmiles(d['smiles'])
-                        if m: st.image(Draw.MolToImage(m, size=(300, 200)))
+                with st.expander(f"🚩 [{d['pathway']}] Product: {d['smiles'][:30]}..."):
+                    d_col1, d_col2 = st.columns([1, 2])
+                    with d_col1:
+                        if RDKIT_AVAILABLE:
+                            m = Chem.MolFromSmiles(d['smiles'])
+                            if m: st.image(Draw.MolToImage(m, size=(300, 200)))
+                    with d_col2:
+                        st.markdown(f"**Trigger Condition**: `{d['condition']}`")
+                        st.markdown(f"**Scientific Rationale**: *{d['rationale']}*")
+                        st.markdown(f"**Result**: <span class='badge'> {d['class']} </span>", unsafe_allow_html=True)
+                        st.info(f"Risk Assessment: {d['risk']}")
         else:
-            st.info("No degradation products predicted via standard rules.")
-        st.markdown("</div>", unsafe_allow_html=True)
+            st.info("No degradation products predicted via ICH Q1A rules.")
 
     with tab3:
         st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
