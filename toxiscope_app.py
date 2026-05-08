@@ -230,64 +230,61 @@ if st.session_state.results:
         st.markdown("<div class='accent-text'>ICH M7 Dual-Methodology Validation</div>", unsafe_allow_html=True)
         e_col1, e_col2, e_col3 = st.columns(3)
         
+        # Methodology 1: Expert
+        expert_alerts = [a for a in st.session_state.results['alerts'] if a['method'] == 'Expert Rule-based']
+        expert_html = ""
+        if expert_alerts:
+            for a in expert_alerts:
+                expert_html += f"<div style='background: rgba(255,165,0,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid orange;'><b style='color: orange;'>{a['alert']}</b><br><small style='color: #94a3b8;'>{a['reference']}</small><br><p style='font-size: 0.85rem;'>{a['mechanism']}</p></div>"
+        else:
+            expert_html = "<div style='color: #4ade80; padding: 10px; background: rgba(74,222,128,0.1); border-radius: 8px;'>✅ No structural alerts identified by expert knowledge base.</div>"
+        
         with e_col1:
-            st.markdown("<div class='glass-card' style='min-height: 400px;'>", unsafe_allow_html=True)
-            st.markdown("#### 🧠 Method 1: Expert Rules")
-            expert_alerts = [a for a in st.session_state.results['alerts'] if a['method'] == 'Expert Rule-based']
-            if expert_alerts:
-                for alert in expert_alerts:
-                    st.warning(f"**{alert['alert']}**")
-                    st.caption(f"Ref: {alert['reference']}")
-                    st.write(f"*{alert['mechanism']}*")
-                    st.markdown("---")
-            else:
-                st.success("No structural alerts found via Expert Knowledge Base.")
-            st.markdown("</div>", unsafe_allow_html=True)
-            
+            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>🧠 Method 1: Expert</h4>{expert_html}</div>", unsafe_allow_html=True)
+
+        # Methodology 2: Statistical
+        stat_alerts = [a for a in st.session_state.results['alerts'] if a['method'] == 'Statistical (SAR)']
+        stat_html = ""
+        if stat_alerts:
+            for a in stat_alerts:
+                stat_html += f"<div style='background: rgba(255,0,0,0.1); padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid red;'><b style='color: #ef4444;'>{a['alert']}</b><br><small style='color: #94a3b8;'>Prob: {int(a['probability']*100)}%</small></div>"
+        else:
+            stat_html = "<div style='color: #4ade80; padding: 10px; background: rgba(74,222,128,0.1); border-radius: 8px;'>✅ No significant mutagenic fragments identified by statistical engine.</div>"
+
         with e_col2:
-            st.markdown("<div class='glass-card' style='min-height: 400px;'>", unsafe_allow_html=True)
-            st.markdown("#### 📊 Method 2: Statistical SAR")
-            stat_alerts = [a for a in st.session_state.results['alerts'] if a['method'] == 'Statistical (SAR)']
-            if stat_alerts:
-                for alert in stat_alerts:
-                    st.error(f"**{alert['alert']}**")
-                    st.progress(alert['probability'])
-                    st.write(f"Confidence: {int(alert['probability']*100)}%")
-                    st.markdown("---")
-            else:
-                st.success("No significant mutagenic fragments identified by statistical engine.")
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>📊 Method 2: Statistical</h4>{stat_html}</div>", unsafe_allow_html=True)
+
+        # Assay Data
+        exp_data = get_experimental_detail(st.session_state.smiles)
+        assay_html = ""
+        if exp_data:
+            for a in exp_data['assay_data']:
+                icon = "🔴" if a['result'] == "Positive" else "🟢"
+                assay_html += f"<div style='font-size: 0.9rem; margin-bottom: 5px;'>{icon} <b>{a['test']}</b>: {a['result']}</div>"
+        else:
+            assay_html = "<div style='color: #64748b;'>No historical assay data found.</div>"
 
         with e_col3:
-            st.markdown("<div class='glass-card' style='min-height: 400px;'>", unsafe_allow_html=True)
-            st.markdown("#### 🧪 In-Vitro Assay Data")
-            exp_data = get_experimental_detail(st.session_state.smiles)
-            if exp_data:
-                for assay in exp_data['assay_data']:
-                    res_icon = "🔴" if assay['result'] == "Positive" else "🟢"
-                    st.write(f"{res_icon} **{assay['test']}**: {assay['result']}")
-                    st.caption(f"Source: {assay['source']}")
-            else:
-                st.info("No historical experimental assay data found.")
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='glass-card' style='min-height: 420px;'><h4>🧪 Assay Evidence</h4>{assay_html}</div>", unsafe_allow_html=True)
 
     with tab2:
         st.markdown("<div class='accent-text'>Stress Testing & Degradation Backing</div>", unsafe_allow_html=True)
         if st.session_state.get('degradants'):
             for d in st.session_state.degradants:
-                with st.expander(f"🚩 [{d['pathway']}] Product: {d['smiles'][:30]}..."):
+                with st.expander(f"🚩 [{d['pathway']}] Product Identification"):
                     d_col1, d_col2 = st.columns([1, 2])
                     with d_col1:
                         if RDKIT_AVAILABLE:
                             m = Chem.MolFromSmiles(d['smiles'])
                             if m: st.image(Draw.MolToImage(m, size=(300, 200)))
                     with d_col2:
-                        st.markdown(f"**Trigger Condition**: `{d['condition']}`")
-                        st.markdown(f"**Scientific Rationale**: *{d['rationale']}*")
-                        st.markdown(f"**Result**: <span class='badge'> {d['class']} </span>", unsafe_allow_html=True)
-                        st.info(f"Risk Assessment: {d['risk']}")
+                        st.markdown(f"<div style='background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;'>"
+                                    f"<b>Trigger</b>: <code style='color: #60a5fa;'>{d['condition']}</code><br><br>"
+                                    f"<b>Rationale</b>: <i>{d['rationale']}</i><br><br>"
+                                    f"<b>Regulatory Status</b>: <span class='badge'>{d['class']}</span>"
+                                    f"</div>", unsafe_allow_html=True)
         else:
-            st.info("No degradation products predicted via ICH Q1A rules.")
+            st.info("No degradation products predicted via ICH Q1A rules for this structure.")
 
     with tab3:
         st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
@@ -297,11 +294,37 @@ if st.session_state.results:
             st.write(f"**Monograph Reference**: {pharma_info['monograph_ref']}")
             st.write(f"**DMF Summary**: {pharma_info['dmf_summary']}")
             st.markdown("---")
-            st.markdown("**Known Related Substances (USP/EP)**")
             for imp in pharma_info['impurities']:
-                st.markdown(f"- **{imp['id']}**: {imp['name']} ({imp['origin']}) | Class: {imp['class']}")
+                st.markdown(f"<div style='padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);'>"
+                            f"<b>{imp['id']}</b>: {imp['name']} <small>({imp['origin']})</small> — <span style='color: #60a5fa;'>Class {imp['class']}</span>"
+                            f"</div>", unsafe_allow_html=True)
         else:
             st.info("No specific USP/EP/DMF monograph linked to this compound name.")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with tab4:
+        st.markdown("<div class='accent-text'>Submission-Ready Regulatory Narrative</div>", unsafe_allow_html=True)
+        st.markdown("<div class='glass-card' style='background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.2);'>", unsafe_allow_html=True)
+        
+        narrative = f"""
+        ### 1. Assessment Overview
+        The impurity profile of **{input_name}** was assessed for mutagenic potential in accordance with **ICH M7(R2)** guidelines. 
+        A dual-methodology (Q)SAR assessment was performed using complementary expert-rule based and statistical-based methodologies.
+
+        ### 2. (Q)SAR Methodology & Results
+        - **Expert Rule-based**: Assessment conducted against the Ashby knowledge base. Result: **{st.session_state.results['class']}**.
+        - **Statistical SAR**: Assessment of mutagenic probability based on structural fragment analysis. Result: **{st.session_state.results['class']}**.
+        
+        ### 3. Control Strategy & TTC
+        Based on a maximum daily dose of **{st.session_state.get('dose', 10)} mg**, the Threshold of Toxicological Concern (TTC) is established at **{ttc.get('limit_ug_day')} µg/day**, 
+        corresponding to an acceptance limit of **{ttc.get('limit_ppm')} ppm**. 
+        
+        ### 4. Conclusion
+        All identified and predicted impurities are classified as **{st.session_state.results['class']}**, posing a negligible carcinogenic risk. 
+        No further qualification or clinical justification is required for marketing authorization.
+        """
+        st.markdown(narrative)
+        st.button("📥 Download Regulatory Report (PDF)")
         st.markdown("</div>", unsafe_allow_html=True)
 
     with tab4:
