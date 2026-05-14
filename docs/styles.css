@@ -1,0 +1,186 @@
+:root {
+    --primary-color: #0ea5e9;
+    --secondary-color: #334155;
+    --bg-color: #f8fafc;
+    --text-color: #1e293b;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --accent-color: #0284c7;
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8)), url('images/header_bg.png');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 5rem 1rem;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+}
+
+header p {
+    margin-top: 0.5rem;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    display: inline-block;
+}
+
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.post-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.post-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    background-color: #cbd5e1;
+}
+
+.post-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+
+.post-category {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.post-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: var(--secondary-color);
+}
+
+.post-excerpt {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.post-meta {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    display: flex;
+    justify-content: space-between;
+}
+
+.pharmaline-section {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 16px;
+    border-left: 6px solid var(--primary-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 3rem;
+}
+
+.pharmaline-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.pharmaline-header h2 {
+    margin: 0;
+    color: var(--secondary-color);
+    font-size: 1.75rem;
+}
+
+.pharmaline-badge {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.pharmaline-list {
+    list-style: none;
+    padding: 0;
+}
+
+.pharmaline-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pharmaline-item:last-child {
+    border-bottom: none;
+}
+
+.pharmaline-item-title {
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.pharmaline-item-date {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+footer {
+    text-align: center;
+    padding: 3rem;
+    background: #1e293b;
+    color: white;
+    margin-top: 4rem;
+}
