@@ -1,9 +1,7 @@
 node_modules/
 deploy/
-*.png
 .DS_Store
 src/
-public/
 package*.json
 eslint.config.js
 mockData.js

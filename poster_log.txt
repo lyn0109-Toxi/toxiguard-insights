@@ -1,0 +1,13 @@
+[2026-05-11T14:04:43.000Z] Found daily file: daily_2026-05-11.md. Processing...
+[2026-05-11T14:04:43.656Z] Converted image to base64: /Users/leeyoung-nam/.gemini/antigravity/brain/1136e33a-d9b6-4526-9231-15cd55cf8546/ai_regulatory_science_1778505653746.png
+[2026-05-11T14:04:43.660Z] Converted image to base64: /Users/leeyoung-nam/.gemini/antigravity/brain/1136e33a-d9b6-4526-9231-15cd55cf8546/workflow_automation_1778505693551.png
+[2026-05-11T14:04:43.660Z] Converted image to base64: /Users/leeyoung-nam/.gemini/antigravity/brain/1136e33a-d9b6-4526-9231-15cd55cf8546/ly_type1_dashboard_1778505675870.png
+[2026-05-11T14:05:12.489Z] Error posting to Blogger: Request contains an invalid argument.
+Details: {
+  error: {
+    code: 400,
+    message: 'Request contains an invalid argument.',
+    errors: [ [Object] ],
+    status: 'INVALID_ARGUMENT'
+  }
+}

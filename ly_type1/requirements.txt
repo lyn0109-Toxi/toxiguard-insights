@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pytesseract
+pdfminer.six
+scikit-learn
+shap
+jinja2
+fpdf2
+streamlit>=1.30.0
+pillow
+altair
+pandas

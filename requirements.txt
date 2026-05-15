@@ -1,8 +1,9 @@
 streamlit>=1.24.0
 pandas>=2.0.0
 requests>=2.31.0
-rdkit>=2022.9.5
 numpy>=1.24.0
 Pillow>=9.5.0
-# Commercial Financial APIs (Use official keys instead of scraping)
-# finnhub-python>=2.4.17
+matplotlib>=3.7.1
+plotly>=5.15.0
+fpdf2>=2.7.4
+scipy>=1.10.1
