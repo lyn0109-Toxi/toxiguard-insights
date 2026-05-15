@@ -177,6 +177,29 @@ header p {
     color: #94a3b8;
 }
 
+/* Modal & Prose Styling */
+.prose h1, .prose h2, .prose h3 { color: #1e293b; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+.prose p { line-height: 1.7; color: #334155; margin-bottom: 1.25rem; }
+.prose ul, .prose ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+.prose li { margin-bottom: 0.5rem; color: #334155; }
+.prose img { max-width: 100%; border-radius: 8px; margin: 2rem 0; }
+
+/* Loading Spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f1f5f9;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 footer {
     text-align: center;
     padding: 3rem;

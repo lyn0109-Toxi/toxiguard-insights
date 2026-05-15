@@ -26,127 +26,129 @@
                 <h2>Daily Pharmaline</h2>
                 <span class="pharmaline-badge">LIVE UPDATES</span>
             </div>
-            <ul class="pharmaline-list">
-                <li class="pharmaline-item">
-                    <span class="pharmaline-item-title">FDA Modernization: The Impact of Elsa 4.0 on Submission Science</span>
-                    <span class="pharmaline-item-date">May 14, 2026</span>
-                </li>
-                <li class="pharmaline-item">
-                    <span class="pharmaline-item-title">Information Asymmetry in Regulatory Review: A Deep Dive</span>
-                    <span class="pharmaline-item-date">May 13, 2026</span>
-                </li>
-                <li class="pharmaline-item">
-                    <span class="pharmaline-item-title">HALO Platform Consolidation: Unified FDA Data Sources</span>
-                    <span class="pharmaline-item-date">May 12, 2026</span>
-                </li>
+            <ul id="pharmaline-container" class="pharmaline-list">
+                <!-- Posts will be loaded here dynamically -->
             </ul>
         </section>
 
         <h3 class="section-title">Deep Analysis & Reports</h3>
         
-        <div class="blog-grid">
-            <!-- Post Card 1 -->
-            <article class="post-card">
-                <div class="post-content">
-                    <div class="post-category">Regulatory Science</div>
-                    <h4 class="post-title">The New Information Asymmetry in Regulatory Review</h4>
-                    <p class="post-excerpt">How the agency's internal AI integration is reversing the informational advantage historically held by sponsors...</p>
-                    <div class="post-meta">
-                        <span>By Lee Young-nam</span>
-                        <span>May 13, 2026</span>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Post Card 2 -->
-            <article class="post-card">
-                <div class="post-content">
-                    <div class="post-category">FDA Guidelines</div>
-                    <h4 class="post-title">FDA's Internal AI Just Got a Major Upgrade</h4>
-                    <p class="post-excerpt">What Elsa 4.0 and HALO Mean for the Pharmaceutical Industry and Future Submission Strategies...</p>
-                    <div class="post-meta">
-                        <span>By Lee Young-nam</span>
-                        <span>May 11, 2026</span>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Post Card 3 -->
-            <article class="post-card">
-                <div class="post-content">
-                    <div class="post-category">Pharma Daily Insights</div>
-                    <h4 class="post-title">Daily Pipeline Analysis: Lung Cancer Focus</h4>
-                    <p class="post-excerpt">A comprehensive review of current clinical trials and regulatory milestones in the lung cancer space...</p>
-                    <div class="post-meta">
-                        <span>By Lee Young-nam</span>
-                        <span>May 02, 2026</span>
-                    </div>
-                </div>
-            </article>
+        <div id="blog-grid-container" class="blog-grid">
+            <!-- Posts will be loaded here dynamically -->
         </div>
 
     </main>
 
     <!-- Post Viewer Modal -->
-    <div id="post-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; overflow-y:auto; padding:2rem;">
-        <div class="container" style="background:white; padding:3rem; border-radius:12px; position:relative; max-width:800px;">
-            <button onclick="closePost()" style="position:absolute; top:1rem; right:1rem; border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
-            <div id="post-viewer-content"></div>
+    <div id="post-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; overflow-y:auto; padding:2rem;">
+        <div class="container" style="background:white; padding:3.5rem; border-radius:16px; position:relative; max-width:850px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <button onclick="closePost()" style="position:absolute; top:1.5rem; right:1.5rem; border:none; background:#f1f5f9; width:40px; height:40px; border-radius:50%; font-size:1.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: background 0.2s;">&times;</button>
+            <div id="post-viewer-content" class="prose"></div>
         </div>
     </div>
 
     <footer>
         <div class="container">
-            <p>&copy; 2026 ToxiGuard AI. All rights reserved.</p>
+            <p>&copy; 2026 ToxiGuard Insights. All rights reserved.</p>
             <p style="font-size: 0.8rem; opacity: 0.7;">This platform provides independent regulatory analysis and is not affiliated with the FDA.</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
+        // Set marked options for better security and parsing
+        marked.setOptions({
+            headerIds: false,
+            mangle: false,
+            breaks: true
+        });
+
         async function openPost(postId) {
+            console.log('Attempting to open post:', postId);
             const modal = document.getElementById('post-modal');
             const viewer = document.getElementById('post-viewer-content');
             modal.style.display = 'block';
-            viewer.innerHTML = 'Loading...';
+            document.body.style.overflow = 'hidden';
+            viewer.innerHTML = '<div style="text-align:center; padding:3rem;"><div class="spinner"></div><p>Loading Intelligence Report...</p></div>';
             
             try {
                 const response = await fetch(`posts/${postId}.md`);
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                
                 const text = await response.text();
-                // Clean up markdown frontmatter if exists
                 const cleanText = text.replace(/^---[\s\S]*?---/, '');
                 viewer.innerHTML = marked.parse(cleanText);
+                
+                viewer.querySelectorAll('img').forEach(img => {
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
+                    img.style.borderRadius = '8px';
+                    img.style.margin = '2rem 0';
+                });
+                console.log('Post loaded successfully:', postId);
             } catch (error) {
-                viewer.innerHTML = 'Error loading post.';
+                console.error('Error loading post:', error);
+                let errorMsg = `Could not load the requested post (${postId}).`;
+                if (window.location.protocol === 'file:') {
+                    errorMsg += '<br><br><strong>Note:</strong> Browsers block local file access for security. Please use a local server or view the live GitHub Pages site.';
+                }
+                viewer.innerHTML = `<div style="text-align:center; padding:3rem; color:#ef4444;"><h3>Access Error</h3><p>${errorMsg}</p></div>`;
             }
         }
 
         function closePost() {
             document.getElementById('post-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
-        // Attach listeners to cards and list items
-        document.addEventListener('DOMContentLoaded', () => {
-            // Example for Daily Pharmaline
-            const items = [
-                { el: document.querySelector('.pharmaline-item:nth-child(1)'), id: 'daily_2026-05-14' },
-                { el: document.querySelector('.pharmaline-item:nth-child(2)'), id: 'daily_2026-05-13' },
-                { el: document.querySelector('.pharmaline-item:nth-child(3)'), id: 'daily_2026-05-12' }
-            ];
-            
-            items.forEach(item => {
-                if(item.el) {
-                    item.el.style.cursor = 'pointer';
-                    item.el.onclick = () => openPost(item.id);
-                }
-            });
+        async function initBlog() {
+            console.log('Initializing blog engine...');
+            try {
+                const response = await fetch('blog_metadata.json');
+                if (!response.ok) throw new Error(`Metadata Error: ${response.status}`);
+                const data = await response.json();
+                
+                const lineContainer = document.getElementById('pharmaline-container');
+                lineContainer.innerHTML = ''; // Clear container
+                data.daily_pharmaline.forEach(post => {
+                    const li = document.createElement('li');
+                    li.className = 'pharmaline-item';
+                    li.style.cursor = 'pointer';
+                    li.innerHTML = `
+                        <span class="pharmaline-item-title">${post.title}</span>
+                        <span class="pharmaline-item-date">${post.date}</span>
+                    `;
+                    li.onclick = () => openPost(post.id);
+                    lineContainer.appendChild(li);
+                });
 
-            // Example for Cards
-            const cards = document.querySelectorAll('.post-card');
-            if(cards[0]) cards[0].onclick = () => openPost('daily_2026-05-13');
-            if(cards[1]) cards[1].onclick = () => openPost('daily_2026-05-11');
-            if(cards[2]) cards[2].onclick = () => openPost('daily_2026-05-02');
-        });
+                const gridContainer = document.getElementById('blog-grid-container');
+                gridContainer.innerHTML = ''; // Clear container
+                data.featured_posts.forEach(post => {
+                    const article = document.createElement('article');
+                    article.className = 'post-card';
+                    article.style.cursor = 'pointer';
+                    article.innerHTML = `
+                        <div class="post-content">
+                            <div class="post-category">${post.category}</div>
+                            <h4 class="post-title">${post.title}</h4>
+                            <p class="post-excerpt">${post.excerpt}</p>
+                            <div class="post-meta">
+                                <span>By ${post.author}</span>
+                                <span>${post.date}</span>
+                            </div>
+                        </div>
+                    `;
+                    article.onclick = () => openPost(post.id);
+                    gridContainer.appendChild(article);
+                });
+                console.log('Blog engine initialized successfully.');
+            } catch (error) {
+                console.error('Blog initialization failed:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initBlog);
     </script>
 </body>
 </html>

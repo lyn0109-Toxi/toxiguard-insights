@@ -6,26 +6,21 @@
         "Regulatory Science"
     ],
     "daily_pharmaline": [
+        { "id": "daily_2026-05-14", "title": "FDA Modernization: The Impact of Elsa 4.0 on Submission Science", "date": "2026-05-14" },
+        { "id": "daily_2026-05-13", "title": "Information Asymmetry in Regulatory Review: A Deep Dive", "date": "2026-05-13" },
+        { "id": "daily_2026-05-12", "title": "HALO Platform Consolidation: Unified FDA Data Sources", "date": "2026-05-12" },
+        { "id": "daily_2026-05-11", "title": "AI in Toxicology: From Theory to Regulatory Implementation", "date": "2026-05-11" },
+        { "id": "daily_2026-05-10", "title": "Structured Data Submissions: The Future of CTD", "date": "2026-05-10" }
+    ],
+    "featured_posts": [
         {
             "id": "daily_2026-05-14",
             "title": "FDA Modernization: The Impact of Elsa 4.0 on Submission Science",
+            "category": "Regulatory Science",
+            "excerpt": "A deep dive into how the FDA's new AI tools are reshaping the submission landscape for sponsors...",
             "date": "2026-05-14",
-            "path": "posts/daily_2026-05-14.md"
+            "author": "Lee Young-nam"
         },
-        {
-            "id": "daily_2026-05-13",
-            "title": "Information Asymmetry in Regulatory Review: A Deep Dive",
-            "date": "2026-05-13",
-            "path": "posts/daily_2026-05-13.md"
-        },
-        {
-            "id": "daily_2026-05-12",
-            "title": "HALO Platform Consolidation: Unified FDA Data Sources",
-            "date": "2026-05-12",
-            "path": "posts/daily_2026-05-12.md"
-        }
-    ],
-    "featured_posts": [
         {
             "id": "daily_2026-05-13",
             "title": "The New Information Asymmetry in Regulatory Review",
@@ -35,11 +30,35 @@
             "author": "Lee Young-nam"
         },
         {
-            "id": "daily_2026-05-11",
-            "title": "FDA's Internal AI Just Got a Major Upgrade",
+            "id": "daily_2026-05-12",
+            "title": "HALO Platform Consolidation: Unified FDA Data",
             "category": "FDA Guidelines",
-            "excerpt": "What Elsa 4.0 and HALO Mean for the Pharmaceutical Industry and Future Submission Strategies...",
+            "excerpt": "Understanding the consolidation of 40+ FDA data sources into a single, AI-powered review interface...",
+            "date": "2026-05-12",
+            "author": "Lee Young-nam"
+        },
+        {
+            "id": "daily_2026-05-11",
+            "title": "AI in Toxicology: Regulatory Implementation",
+            "category": "ToxiGuard AI",
+            "excerpt": "Bridging the gap between in-silico modeling and institutional approval for drug safety assessments...",
             "date": "2026-05-11",
+            "author": "Lee Young-nam"
+        },
+        {
+            "id": "daily_2026-05-09",
+            "title": "Preclinical Safety: When does AI fail?",
+            "category": "Regulatory Science",
+            "excerpt": "Analyzing failure modes in AI-based safety assessments and the path toward resilience-oriented design...",
+            "date": "2026-05-09",
+            "author": "Lee Young-nam"
+        },
+        {
+            "id": "daily_2026-05-05",
+            "title": "ToxiGuard AI: Platform Vision 2026",
+            "category": "ToxiGuard AI",
+            "excerpt": "The roadmap for establishing a fully ICH M7-compliant, expert-level regulatory decision-support platform...",
+            "date": "2026-05-05",
             "author": "Lee Young-nam"
         }
     ]
